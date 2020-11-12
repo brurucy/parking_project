@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="gherkin" type="mix">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/_build/test/lib/gherkin/ebin" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/deps/gherkin/lib" />
+    </SOURCES>
+  </library>
+</component>
