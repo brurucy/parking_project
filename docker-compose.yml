@@ -1,15 +1,14 @@
-web
-  build: .
+web:
+  image: parkingproject:0.1
   ports:
     - "4000:4000"
   command: mix phx.server
   environment:
-    - MIX_ENV=test
     - PORT=4000
   volumes:
     - .:/app
   links:
-    -db
+    - db
 db:
   image: postgres
   environment:

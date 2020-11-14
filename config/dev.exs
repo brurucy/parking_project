@@ -5,7 +5,7 @@ config :parkingproject, ParkingProject.Repo,
   username: "postgres",
   password: "postgres",
   database: "parkingproject_dev",
-  hostname: "localhost",
+  hostname: "postgres@5432",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 

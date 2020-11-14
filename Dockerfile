@@ -13,4 +13,6 @@ ENV APP_HOME /app
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
-CMD ["mix", "test"]
+EXPOSE 4000
+
+CMD ["mix", "phx.server"]

@@ -1,57 +1,41 @@
-# How to run
+* Installing Docker and Docker-compose
 
-first
+**These instructions are for linux**
 
-```elixir
-mix ecto.reset
-```
+**I have no idea how to go about it in Windows tbh**
 
-second
+Install docker and docker-compose as described on Installing_docker.md
 
-```elixir
-mix phx.server
-```
+* Running Docker and Docker-compose
 
-# User stories
+1. `cd parking_project`
 
-## User Management
+2. `sudo docker build -t parkingproject:0.1 .` **do not forget about the . in the end**
 
-### 1 - As a Taxi Driver
+3. `sudo docker-compose -f docker-compose.yml up -d`
 
-I want to sing up for an account in the application
-So that I can log in to the application
+4. go to `localhost:4000`, you should see phoenix
 
-### 2 - As a Taxi Driver
-I want to log in to the application
-So that I can find the parking spots
+5. use `sudo docker-compose down` to stop everything. **make sure to be in the project folder in order to do that**
 
-### 3 - As a User
-I want to log out from the application
-So that I can have my account private
+* F.A.Q
 
-## Interactive search of parking space
+1. Why do we have to use docker?
 
-### 1 - As a User
-I want to search for the parking spots around a specific place
-So that I can receive the detail about the available parking spots to book
-### 2 - As a User
-I want to key in hours of stay in the parking spot
-So that I can receive estimation about how much I should pay
+Having a docker image ready will make our lives easier for CI.
 
-## Parking payment
+2. If I change something in a file, do I have to run docker build and else again?
 
-### 1 - As a User
-I want to select an option among provided plans (hourly, real-time)
-So that I can pay the cost in a way that suits me the best
-### 2 - As a User
-I want the system to notify me 10 minutes before my booked duration is expired
-So that I can decide to extend the duration or not
+No. The development experience should be pretty much the same as without docker.
 
-## Billing/Invoicing
+3. How can I run `mix test`?
 
-### 1 - As a User
-I want to have a pre-paid account in the system
-So that I can pay for the parking spots from my on-site account
+`docker exec -it parking_project_web_1 bash`
 
-### 2 - As a User
-I want the system show me
+`mix test`
+
+4. How can I reset the db inside?
+
+Just `sudo docker-compose down` then `sudo docker-compose -f docker-compose.yml up -d`
+
+Avoid interacting with the container directly.
