@@ -1,12 +1,14 @@
-* Installing Docker and Docker-compose
+# Parking Project
+
+## Installing Docker and Docker-compose
 
 **These instructions are for linux**
 
 **I have no idea how to go about it in Windows tbh**
 
-Install docker and docker-compose as described on Installing_docker.md
+Install docker and docker-compose as described [here](https://github.com/brurucy/parking_project/blob/master/Installing_docker.md)
 
-* Running Docker and Docker-compose
+## Running Docker and Docker-compose
 
 1. `cd parking_project`
 
@@ -18,7 +20,7 @@ Install docker and docker-compose as described on Installing_docker.md
 
 5. use `sudo docker-compose down` to stop everything. **make sure to be in the project folder in order to do that**
 
-* F.A.Q
+## F.A.Q
 
 1. Why do we have to use docker?
 
