@@ -30,13 +30,17 @@ Having a docker image ready will make our lives easier for CI.
 
 No. The development experience should be pretty much the same as without docker.
 
-3. How can I run `mix test`?
+3. How can I test the hard way(won't spawn a new container)?
 
-`docker exec -it parking_project_web_1 bash`
+`docker exec -it <container_id> bash`
 
-`mix test`
+`mix test` or `mix white_bread.run`
 
-4. How can I reset the db inside?
+4. How can I test the easy way(will spawn a new container)?
+
+`sudo docker-compose run web mix test`
+
+5. How can I reset the db?
 
 Just `sudo docker-compose down` then `sudo docker-compose -f docker-compose.yml up -d`
 

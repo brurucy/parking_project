@@ -1,17 +1,35 @@
-web:
-  image: parkingproject:0.1
-  ports:
-    - "4000:4000"
-  command: mix phx.server
-  environment:
-    - PORT=4000
-  volumes:
-    - .:/app
-  links:
-    - db
-db:
-  image: postgres
-  environment:
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_HOST=db
+version: "3.8"
+services:
+  web:
+    image: parkingproject:0.1
+    ports:
+      - "4000:4000"
+    command: mix phx.server
+    environment:
+      - PORT=4000
+    volumes:
+      - .:/app
+    networks:
+      - one
+    depends_on:
+      - postgres
+      - wdriver
+  postgres:
+    image: postgres
+    networks:
+      - one
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=postgres
+  wdriver:
+    image: robcherry/docker-chromedriver:latest
+    networks:
+      - one
+    ports:
+      - "4444:4444"
+    environment:
+      - PORT=4444
+      - CHROMEDRIVER_WHITELISTED_IPS=''
+networks:
+  one:

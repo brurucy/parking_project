@@ -9,7 +9,8 @@ config :parkingproject, ParkingProject.Repo,
   username: "postgres",
   password: "postgres",
   database: "parkingproject_test#{System.get_env("MIX_TEST_PARTITION")}",
-  hostname: "postgres@5432",
+  #hostname: "localhost",
+  hostname: "postgres",
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,
@@ -20,5 +21,5 @@ config :parkingproject, ParkingProjectWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn, backends: [:console], compile_time_purge_level: :debug
-config :hound, driver: "chrome_driver"
+config :hound, driver: "chrome_driver", host: "wdriver", port: 4444
 config :parkingproject, sql_sandbox: true
