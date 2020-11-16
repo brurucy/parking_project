@@ -12,6 +12,10 @@ Install docker and docker-compose as described [here](https://github.com/brurucy
 
 1. `cd parking_project`
 
+    `mix deps.get`
+    
+    `mix ecto.create`
+
 2. `sudo docker build -t parkingproject:0.1 .` **do not forget about the . in the end**
 
 3. `sudo docker-compose -f docker-compose.yml up -d`
@@ -44,4 +48,4 @@ No. The development experience should be pretty much the same as without docker.
 
 Just `sudo docker-compose down` then `sudo docker-compose -f docker-compose.yml up -d`
 
-Avoid interacting with the container directly.
+Avoid interacting with the container directly
