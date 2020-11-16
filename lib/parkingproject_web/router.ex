@@ -17,6 +17,7 @@ defmodule ParkingProjectWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    resources "/session", SessionController, only: [:new, :create, :delete]
   end
 
   # Other scopes may use custom stacks.
