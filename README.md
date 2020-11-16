@@ -12,6 +12,12 @@ Install docker and docker-compose as described [here](https://github.com/brurucy
 
 1. `cd parking_project`
 
+    `mix deps.get`
+    
+    `cd assets`
+    
+    `npm install`
+
 2. `sudo docker build -t parkingproject:0.1 .` **do not forget about the . in the end**
 
 3. `sudo docker-compose -f docker-compose.yml up -d`
