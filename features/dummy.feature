@@ -7,5 +7,3 @@ Feature: existing
     Given that I am near "Raatuse 23"
     And about to park
     Then I should go to the website first
-
-  Scenario:
