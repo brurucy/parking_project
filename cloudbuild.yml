@@ -1,7 +1,7 @@
 #cloudbuild.yaml
 steps:
-  - name: 'docker/compose:1.27.0'
-    args: ['up', '-d']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'tag', 'parkingproject:0.1', 'gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA' ]
-  images: [ 'gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA' ]
+- name: 'docker/compose:1.27.0'
+  args: ['up', '-d']
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'tag', 'parkingproject:0.1', 'gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA' ]
+images: [ 'gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA' ]
