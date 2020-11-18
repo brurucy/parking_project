@@ -1,7 +1,9 @@
-Feature: existing
-  As a driver
+Feature: User Management
+  As a User
   I am done driving
   Therefore I want to park my car
+  Hence I have to register myself in the App
+  So I can log-in
 
   Scenario: Visiting the website
     Given that I am near "Raatuse 23"

@@ -1,7 +1,7 @@
-defmodule Takso.Guardian do
+defmodule ParkingProject.Guardian do
   use Guardian, otp_app: :takso
 
-  alias Takso.Accounts.User
+  alias ParkingProject.UserManagement.User
   alias Takso.Repo
 
   def subject_for_token(%User{} = user, _claims), do: {:ok, to_string(user.id)}

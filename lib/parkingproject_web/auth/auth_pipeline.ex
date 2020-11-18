@@ -1,8 +1,8 @@
-defmodule Takso.AuthPipeline do
+defmodule ParkingProject.AuthPipeline do
   use Guardian.Plug.Pipeline,
       otp_app: :takso,
-      error_handler: Takso.ErrorHandler,
-      module: Takso.Guardian
+      error_handler: ParkingProject.ErrorHandler,
+      module: ParkingProject.Guardian
 
   # If there is a session token, restrict it to an access token and validate it
   plug Guardian.Plug.VerifySession, claims: %{"typ" => "access"}

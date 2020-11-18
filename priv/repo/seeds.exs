@@ -1,11 +1,8 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     ParkingProject.Repo.insert!(%ParkingProject.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+alias ParkingProject.UserManagement.User
+
+bruno = User.changeset(%User{},
+        %{name: "RUcy",
+          email: "bruno98@ut.ee",
+          password: "parool",
+          license_plate: "666SATYR"})
+        |> Repo.insert!

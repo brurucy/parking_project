@@ -2,7 +2,7 @@ defmodule ParkingProjectWeb.UserController do
   use ParkingProjectWeb, :controller
 
   alias ParkingProject.Repo
-  alias ParkingProject.Accounts.User
+  alias ParkingProject.UserManagement.User, as: User
 
   def index(conn, _params) do
     users = Repo.all(User)

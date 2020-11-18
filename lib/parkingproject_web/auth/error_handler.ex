@@ -1,4 +1,4 @@
-defmodule Takso.ErrorHandler do
+defmodule ParkingProject.ErrorHandler do
   import Plug.Conn
   @behaviour Guardian.Plug.ErrorHandler
 
