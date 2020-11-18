@@ -2,12 +2,12 @@
 
 ## User Management
 
-### 1 - As a Taxi Driver
+### 1 - As a visitor
 
-I want to sing up for an account in the application
+I want to sign up for an account in the application
 So that I can log in to the application
 
-### 2 - As a Taxi Driver
+### 2 - As a visitor
 I want to log in to the application
 So that I can find the parking spots
 

@@ -13,6 +13,9 @@ ENV APP_HOME /app
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
-EXPOSE 4000
+COPY . /app
 
-CMD mix ecto.create && mix phx.server
+RUN cd /app/assets && npm install && \
+    cd .. && mix deps.get
+
+EXPOSE 4000

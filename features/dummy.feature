@@ -1,4 +1,4 @@
-mixFeature: existing
+Feature: existing
   As a driver
   I am done driving
   Therefore I want to park my car
@@ -35,8 +35,3 @@ mixFeature: existing
     And I see the button "Sign out"
     When I click on the button "Sign out"
     Then I am logged out of my account
-
-
-
-
-
