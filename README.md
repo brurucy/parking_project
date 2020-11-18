@@ -18,7 +18,7 @@ Install docker and docker-compose as described [here](https://github.com/brurucy
     
     `mix ecto.create`
 
-2. `docker pull -t parkingproject:latest .` **do not forget about the . in the end**
+2. `docker pull eu.gcr.io/primeval-falcon-295315/parking_project` **this will fail if you are not logged in gcloud**
 
 3. `docker-compose -f docker-compose-test.yml up -d`
 

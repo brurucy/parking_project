@@ -5,3 +5,4 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'tag', 'eu.gcr.io/primeval-falcon-295315/parking_project', 'eu.gcr.io/primeval-falcon-295315/parking_project' ]
 images: [ 'eu.gcr.io/primeval-falcon-295315/parking_project' ]
+logsBucket: 'gs://build-logs-bucket-one'
