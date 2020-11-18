@@ -14,15 +14,17 @@ Install docker and docker-compose as described [here](https://github.com/brurucy
 
     `mix deps.get`
     
+    `cd assets && npm install`
+    
     `mix ecto.create`
 
-2. `sudo docker build -t parkingproject:0.1 .` **do not forget about the . in the end**
+2. `docker pull -t parkingproject:latest .` **do not forget about the . in the end**
 
-3. `sudo docker-compose -f docker-compose.yml up -d`
+3. `docker-compose -f docker-compose-test.yml up -d`
 
 4. go to `localhost:4000`, you should see phoenix
 
-5. use `sudo docker-compose down` to stop everything. **make sure to be in the project folder in order to do that**
+5. use `docker-compose docker-compose-dev.yml down` to stop everything. **make sure to be in the project folder in order to do that**
 
 ## F.A.Q
 
@@ -46,6 +48,6 @@ No. The development experience should be pretty much the same as without docker.
 
 5. How can I reset the db?
 
-Just `sudo docker-compose down` then `sudo docker-compose -f docker-compose.yml up -d`
+Just `sudo docker-compose -f docker-compose-test.yml down` then `sudo docker-compose -f docker-compose-test.yml up -d`
 
 Avoid interacting with the container directly

@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  web:
+    image: eu.gcr.io/primeval-falcon-295315/parking_project:latest
+    ports:
+      - "4000:4000"
+    entrypoint: [bash, -c, "mix ecto.create && mix phx.server"]
+    environment:
+      - PORT=4000
+    volumes:
+      - .:/app
+    networks:
+      - one
+    depends_on:
+      - postgres
+      - wdriver
+  postgres:
+    image: postgres
+    networks:
+      - one
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST=postgres
+  wdriver:
+    image: robcherry/docker-chromedriver:latest
+    networks:
+      - one
+    ports:
+      - "4444:4444"
+    environment:
+      - PORT=4444
+      - CHROMEDRIVER_WHITELISTED_IPS=''
+networks:
+  one:
