@@ -9,6 +9,14 @@ defmodule ParkingProjectWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :browser_auth do
+    plug ParkingProject.AuthPipeline
+  end
+
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
