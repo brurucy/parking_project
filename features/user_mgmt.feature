@@ -14,10 +14,11 @@ Feature: User Management
     Given that I do not already have an account with email "brunorucy@ut.ee"
     When I open the app
     Then I see the button "SIGN UP"
-    When I click the button "SIGN UP"
+    When I click on it
     Then I see an empty registration form
-    When I fill all the fields
-    And click on "SUBMIT"
+    And my name is "Bruno Rucy", email "brunorucy@ut.ee", license plate "666 ABC" and desired password "Banana1234!"
+    And I fill the form with my information
+    And click on "Submit"
     Then I am shown a confirmation of registration
 
   Scenario: Logging in (with confirmation)

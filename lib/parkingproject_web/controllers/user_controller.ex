@@ -21,7 +21,7 @@ defmodule ParkingProjectWeb.UserController do
       {:ok, _user} ->
         conn
         |> put_flash(:info, "Please log in.")
-        |> redirect(to: Routes.user_path(conn, :index))
+        |> redirect(to: Routes.page_path(conn, :index))
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
     end

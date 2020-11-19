@@ -46,9 +46,74 @@ defmodule WhiteBreadContext do
     {:ok, state}
   end
 
-  then_ ~r/^I see the button "(?<button_value>[^"]+)"$/,
-        fn state, %{button_value: button_value} ->
-          {:ok, state}
-        end
+  then_ ~r/^I see the button "(?<button_value>[^"]+)"$/, fn state, %{button_value: button_value} ->
+    assert visible_in_page? ~r/#{button_value}/
+    {:ok, state}
+  end
+
+  when_ ~r/^I click on it$/, fn state  ->
+    button_element = find_element(:id, "sign_up_button")
+    :timer.sleep(100)
+    click button_element
+    :timer.sleep(100)
+    {:ok, state}
+  end
+
+  then_ ~r/^I see an empty registration form$/, fn state ->
+    :timer.sleep(250)
+    name_field = find_element(:id, "name")
+    assert attribute_value(name_field, "value") == ""
+
+    :timer.sleep(250)
+    email_field = find_element(:id, "email")
+    assert attribute_value(name_field, "value") == ""
+
+    :timer.sleep(250)
+    license_plate_field = find_element(:id, "license_plate")
+    assert attribute_value(name_field, "value") == ""
+
+    :timer.sleep(250)
+    license_plate_field = find_element(:id, "password")
+    assert attribute_value(name_field, "value") == ""
+
+    {:ok, state}
+  end
+
+  and_ ~r/^my name is "(?<name>[^"]+)", email "(?<email>[^"]+)", license plate "(?<license_plate>[^"]+)" and desired password "(?<password>[^"]+)"$/,
+       fn state, %{name: name, email: email,license_plate: license_plate,password: password} ->
+         {:ok, state |> Map.put(:name, name)
+                     |> Map.put(:license_plate, license_plate)
+                     |> Map.put(:password, password)}
+       end
+
+  and_ ~r/^I fill the form with my information$/, fn state ->
+    :timer.sleep(100)
+    name_field = find_element(:id, "name")
+    input_into_field(name_field, state[:name])
+    :timer.sleep(100)
+    email_field = find_element(:id, "email")
+    input_into_field(email_field, state[:email])
+    :timer.sleep(100)
+    license_plate_field = find_element(:id, "license_plate")
+    input_into_field(license_plate_field, state[:license_plate])
+    :timer.sleep(100)
+    password_field = find_element(:id, "password")
+    input_into_field(password_field, state[:password])
+    :timer.sleep(100)
+    {:ok, state}
+  end
+
+  and_ ~r/^click on "(?<Submit>[^"]+)"$/, fn state, %{Submit: submit_button_id} ->
+    button_element = find_element(:id, submit_button_id)
+    click button_element
+    :timer.sleep(100)
+    {:ok, state}
+  end
+
+  then_ ~r/^I am shown a confirmation of registration$/, fn state ->
+    :timer.sleep(100)
+    assert visible_in_page? ~r/Please log in/
+    {:ok, state}
+  end
 
 end
