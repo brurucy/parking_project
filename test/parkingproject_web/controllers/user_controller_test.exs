@@ -5,7 +5,7 @@ defmodule ParkingProjectWeb.UserControllerTest do
   alias Ecto.{Changeset}
 
   test "register", %{conn: conn} do
-    conn = post conn, "/users", %{user: [email: "bruno98@ut.ee",
+    conn = post conn, "/users", %{user: [email: "bruno198@ut.ee",
       password: "parool",
       license_plate: "666SATYR",
       name: "Rucy"]}
