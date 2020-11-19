@@ -5,9 +5,11 @@ defmodule ParkingProjectWeb.SessionControllerTest do
   alias Ecto.{Changeset}
 
   test "log-in", %{conn: conn} do
-    conn = post conn, "/session", %{user: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Konnichiwa ^_^/
   end
+
+
 
 end
