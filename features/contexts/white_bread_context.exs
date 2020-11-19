@@ -132,34 +132,33 @@ defmodule WhiteBreadContext do
   end
 
   and_ ~r/^enter the credentials$/, fn state ->
-    :timer.sleep(100)
+    :timer.sleep(500)
     email_field = find_element(:id, "email")
     input_into_field(email_field, state[:email])
-    :timer.sleep(100)
+    :timer.sleep(500)
     password_field = find_element(:id, "password")
     input_into_field(password_field, state[:password])
-    :timer.sleep(100)
+    :timer.sleep(250)
     {:ok, state}
   end
 
   and_ ~r/^I triple double quadruple check their correctness$/, fn state ->
 
-    :timer.sleep(250)
-    name_field = find_element(:id, "name")
-    assert attribute_value(name_field, "value") == state[:name]
-
-    :timer.sleep(250)
+    :timer.sleep(100)
     email_field = find_element(:id, "email")
     assert attribute_value(email_field, "value") == state[:email]
 
-    :timer.sleep(250)
-    license_plate_field = find_element(:id, "license_plate")
-    assert attribute_value(license_plate_field, "value") == state[:license_plate]
-
-    :timer.sleep(250)
+    :timer.sleep(100)
     password_field = find_element(:id, "password")
     assert attribute_value(password_field, "value") == state[:password]
 
+    {:ok, state}
+  end
+
+  then_ ~r/^I am logged into my account$/, fn state ->
+    :timer.sleep(500)
+    assert visible_in_page? ~r/Welcome #{state[:email]}/
+    :timer.sleep(250)
     {:ok, state}
   end
 

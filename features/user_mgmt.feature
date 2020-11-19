@@ -21,13 +21,14 @@ Feature: User Management
     And click on "Submit"
     Then I am shown a confirmation of registration
 
-  Scenario: Logging in (with confirmation)
-    Given that I have an account with the following credentials: email "brunorucy@ut.ee" and password "Banana1234!"
+  Scenario: Logging in
+    Given that I have an account with the following credentials: email "bruno98@ut.ee" and password "parool"
     When I open the app
     Then I see the button "Sign in"
     When I click on sign in
     And enter the credentials
     And I triple double quadruple check their correctness
+    And click on "Submit"
     Then I am logged into my account
 
   Scenario: Logging out
