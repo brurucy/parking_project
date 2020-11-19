@@ -2,7 +2,7 @@ defmodule ParkingProjectWeb.UserController do
   use ParkingProjectWeb, :controller
 
   alias ParkingProject.Repo
-  alias ParkingProject.UserManagement.User, as: User
+  alias ParkingProject.UserManagement.User
 
   def index(conn, _params) do
     users = Repo.all(User)
@@ -20,7 +20,7 @@ defmodule ParkingProjectWeb.UserController do
     case Repo.insert(changeset) do
       {:ok, _user} ->
         conn
-        |> put_flash(:info, "User created successfully.")
+        |> put_flash(:info, "Please log in.")
         |> redirect(to: Routes.user_path(conn, :index))
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)

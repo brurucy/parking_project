@@ -1,3 +1,4 @@
+alias ParkingProject.Repo
 alias ParkingProject.UserManagement.User
 
 bruno = User.changeset(%User{},
