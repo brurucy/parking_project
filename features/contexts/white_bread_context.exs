@@ -3,6 +3,7 @@ defmodule WhiteBreadContext do
   use Hound.Helpers
 
   alias ParkingProject.{Repo}
+  alias ParkingProject.UserManagement.User
 
   feature_starting_state fn ->
     Application.ensure_all_started(:hound)
@@ -29,9 +30,25 @@ defmodule WhiteBreadContext do
   end
 
   then_ ~r/^I should go to the website first$/, fn state ->
-
-
     {:ok, state}
   end
+
+  given_ ~r/^that I do not already have an account with email "(?<email>[^"]+)"$/,
+    fn state, %{email: email} ->
+      case Repo.get_by(User, email: email) do
+        nil -> {:ok, state |> Map.put(:email, email)}
+        _ -> {:error, state}
+        end
+    end
+
+  when_ ~r/^I open the app$/, fn state ->
+    navigate_to "/"
+    {:ok, state}
+  end
+
+  then_ ~r/^I see the button "(?<button_value>[^"]+)"$/,
+        fn state, %{button_value: button_value} ->
+          {:ok, state}
+        end
 
 end

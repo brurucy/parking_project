@@ -11,7 +11,7 @@ Feature: User Management
     Then I should go to the website first
 
   Scenario: Creating an account
-    Given that I do not already have an account
+    Given that I do not already have an account with email "brunorucy@ut.ee"
     When I open the app
     Then I see the button "SIGN UP"
     When I click the button "SIGN UP"
