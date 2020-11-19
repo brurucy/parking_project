@@ -1,8 +1,8 @@
 defmodule ParkingProject.Guardian do
-  use Guardian, otp_app: :takso
+  use Guardian, otp_app: :parkingproject
 
   alias ParkingProject.UserManagement.User
-  alias Takso.Repo
+  alias ParkingProject.Repo
 
   def subject_for_token(%User{} = user, _claims), do: {:ok, to_string(user.id)}
   def subject_for_token(_), do: {:error, :resource_not_found}

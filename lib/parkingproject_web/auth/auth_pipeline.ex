@@ -1,6 +1,6 @@
 defmodule ParkingProject.AuthPipeline do
   use Guardian.Plug.Pipeline,
-      otp_app: :takso,
+      otp_app: :parkingproject,
       error_handler: ParkingProject.ErrorHandler,
       module: ParkingProject.Guardian
 

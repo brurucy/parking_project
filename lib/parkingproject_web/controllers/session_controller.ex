@@ -2,7 +2,7 @@ defmodule ParkingProjectWeb.SessionController do
   use ParkingProjectWeb, :controller
 
   alias ParkingProject.Repo
-  alias ParkingProject.UserManagement.User, as: User
+  alias ParkingProject.UserManagement.User
 
   def new(conn, _params) do
     render conn, "new.html"

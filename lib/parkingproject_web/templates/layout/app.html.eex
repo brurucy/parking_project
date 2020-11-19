@@ -13,7 +13,13 @@
   <section class="container">
     <nav role="navigation">
       <ol class="breadcrumb pull-right">
+        <%= if ParkingProject.Authentication.load_current_user(@conn) do %>
+        <li>Konnichiwa ^_^</li>
+        <li id="logout_button">Log out</li>
+        <% else %>
         <li id="sign_up_button"><%= link "SIGN UP", to: Routes.user_path(@conn, :new), method: "get" %></li>
+        <li id="sign_in_button"><%= link "Sign in", to: Routes.session_path(@conn, :new), method: "get" %></li>
+        <% end %>
       </ol>
       <span class="logo"></span>
 

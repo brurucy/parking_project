@@ -14,7 +14,7 @@ Feature: User Management
     Given that I do not already have an account with email "brunorucy@ut.ee"
     When I open the app
     Then I see the button "SIGN UP"
-    When I click on it
+    When I click on sign up
     Then I see an empty registration form
     And my name is "Bruno Rucy", email "brunorucy@ut.ee", license plate "666 ABC" and desired password "Banana1234!"
     And I fill the form with my information
@@ -22,12 +22,10 @@ Feature: User Management
     Then I am shown a confirmation of registration
 
   Scenario: Logging in (with confirmation)
-    Given that I have an account with the following credentials
-      | name       | email           | license plate | password    |
-      | Bruno Rucy | brunorucy@ut.ee | 666 ABC       | Banana1234! |
+    Given that I have an account with the following credentials: email "brunorucy@ut.ee" and password "Banana1234!"
     When I open the app
     Then I see the button "Sign in"
-    When I click on "Sign in"
+    When I click on sign in
     And enter the credentials
     And I triple double quadruple check their correctness
     Then I am logged into my account

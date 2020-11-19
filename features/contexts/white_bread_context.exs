@@ -51,7 +51,7 @@ defmodule WhiteBreadContext do
     {:ok, state}
   end
 
-  when_ ~r/^I click on it$/, fn state  ->
+  when_ ~r/^I click on sign up$/, fn state  ->
     button_element = find_element(:id, "sign_up_button")
     :timer.sleep(100)
     click button_element
@@ -66,15 +66,15 @@ defmodule WhiteBreadContext do
 
     :timer.sleep(250)
     email_field = find_element(:id, "email")
-    assert attribute_value(name_field, "value") == ""
+    assert attribute_value(email_field, "value") == ""
 
     :timer.sleep(250)
     license_plate_field = find_element(:id, "license_plate")
-    assert attribute_value(name_field, "value") == ""
+    assert attribute_value(license_plate_field, "value") == ""
 
     :timer.sleep(250)
-    license_plate_field = find_element(:id, "password")
-    assert attribute_value(name_field, "value") == ""
+    password_field = find_element(:id, "password")
+    assert attribute_value(password_field, "value") == ""
 
     {:ok, state}
   end
@@ -113,6 +113,53 @@ defmodule WhiteBreadContext do
   then_ ~r/^I am shown a confirmation of registration$/, fn state ->
     :timer.sleep(100)
     assert visible_in_page? ~r/Please log in/
+    {:ok, state}
+  end
+
+  ## Login stuff
+
+  given_ ~r/^that I have an account with the following credentials: email "(?<email>[^"]+)" and password "(?<password>[^"]+)"$/,
+  fn state, %{email: email, password: password} ->
+    {:ok, state |> Map.put(:email, email) |> Map.put(:password, password)}
+  end
+
+  when_ ~r/^I click on sign in$/, fn state ->
+    button_element = find_element(:id, "sign_in_button")
+    :timer.sleep(100)
+    click button_element
+    :timer.sleep(100)
+    {:ok, state}
+  end
+
+  and_ ~r/^enter the credentials$/, fn state ->
+    :timer.sleep(100)
+    email_field = find_element(:id, "email")
+    input_into_field(email_field, state[:email])
+    :timer.sleep(100)
+    password_field = find_element(:id, "password")
+    input_into_field(password_field, state[:password])
+    :timer.sleep(100)
+    {:ok, state}
+  end
+
+  and_ ~r/^I triple double quadruple check their correctness$/, fn state ->
+
+    :timer.sleep(250)
+    name_field = find_element(:id, "name")
+    assert attribute_value(name_field, "value") == state[:name]
+
+    :timer.sleep(250)
+    email_field = find_element(:id, "email")
+    assert attribute_value(email_field, "value") == state[:email]
+
+    :timer.sleep(250)
+    license_plate_field = find_element(:id, "license_plate")
+    assert attribute_value(license_plate_field, "value") == state[:license_plate]
+
+    :timer.sleep(250)
+    password_field = find_element(:id, "password")
+    assert attribute_value(password_field, "value") == state[:password]
+
     {:ok, state}
   end
 

@@ -23,11 +23,22 @@ defmodule ParkingProjectWeb.Router do
 
   scope "/", ParkingProjectWeb do
     pipe_through :browser
-
-    get "/", PageController, :index
-    resources "/users", UserController
     resources "/sessions", SessionController, only: [:new, :create, :delete]
+    resources "/users", UserController
   end
+
+  scope "/", ParkingProjectWeb do
+    pipe_through [:browser, :browser_auth]
+    get "/", PageController, :index
+  end
+
+  #scope "/", ParkingProjectWeb do
+  #  pipe_through :browser
+#
+  #  get "/", PageController, :index
+  #  resources "/users", UserController
+  #  resources "/sessions", SessionController, only: [:new, :create, :delete]
+  #end
 
   # Other scopes may use custom stacks.
   # scope "/api", ParkingProjectWeb do

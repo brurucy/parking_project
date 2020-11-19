@@ -29,3 +29,7 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+config :parkingproject, ParkingProject.Guardian,
+  issuer: "parkingproject",
+  secret_key: "hnBIlgb6IhfXChBBSj6P/y64gDxuD8eiQVDcGXBsCT1+omX+Xy8K/6lZyaJs2ezV"

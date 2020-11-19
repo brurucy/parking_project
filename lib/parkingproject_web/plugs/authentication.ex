@@ -6,6 +6,8 @@ defmodule ParkingProject.Authentication do
     if user && Pbkdf2.verify_pass(plain_text_password, user.hashed_password) do
       {:ok, user}
     else
+      IO.inspect plain_text_password
+      IO.inspect user.hashed_password
       {:error, :unauthorized_user}
     end
   end
