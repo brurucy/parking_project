@@ -8,6 +8,8 @@ defmodule ParkingProject.UserManagement.User do
     field :password, :string, virtual: true
     field :license_plate, :string
     field :name, :string
+    has_many :parkings, ParkingProject.ParkingSpace.Parking
+
     timestamps()
   end
 
