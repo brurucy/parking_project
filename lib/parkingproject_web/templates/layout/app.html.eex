@@ -15,7 +15,7 @@
       <ol class="breadcrumb pull-right">
         <%= if ParkingProject.Authentication.load_current_user(@conn) do %>
         <li>Konnichiwa ^_^</li>
-        <li id="logout_button">Log out</li>
+        <li id="logout_button"><%= link "Log Out", to: Routes.session_path(@conn, :delete, ParkingProject.Authentication.load_current_user(@conn)), method: "delete"%></li>
         <% else %>
         <li id="sign_up_button"><%= link "SIGN UP", to: Routes.user_path(@conn, :new), method: "get" %></li>
         <li id="sign_in_button"><%= link "Sign in", to: Routes.session_path(@conn, :new), method: "get" %></li>

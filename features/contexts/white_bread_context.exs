@@ -186,14 +186,26 @@ defmodule WhiteBreadContext do
     {:ok, state}
   end
 
-  and_ ~r/^I see the button Log out$/, fn state ->
+  and_ ~r/^I see the button Log Out$/, fn state ->
     :timer.sleep(500)
-    assert visible_in_page? ~r/Log out/
+    assert visible_in_page? ~r/Log Out/
     :timer.sleep(500)
     {:ok, state}
   end
 
   when_ ~r/^I click on the button Log out$/, fn state ->
+    :timer.sleep(250)
+    button_element = find_element(:id, "logout_button")
+    :timer.sleep(250)
+    click button_element
+    :timer.sleep(250)
+    {:ok, state}
+  end
+
+  then_ ~r/^I am logged out of my account$/, fn state ->
+    :timer.sleep(500)
+    assert visible_in_page? ~r/Fine, leave then./
+    :timer.sleep(500)
     {:ok, state}
   end
 

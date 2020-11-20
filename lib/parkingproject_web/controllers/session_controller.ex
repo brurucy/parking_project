@@ -26,6 +26,7 @@ defmodule ParkingProjectWeb.SessionController do
   def delete(conn, _params) do
     conn
     |> ParkingProject.Authentication.logout()
+    |> put_flash(:info, "Fine, leave then.")
     |> redirect(to: Routes.page_path(conn, :index))
   end
 
