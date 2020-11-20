@@ -67,4 +67,11 @@ defmodule WhiteBreadContext do
     {:ok, state}
   end
 
+  then_ ~r/^I click on the "(?<argument_one>[^"]+)" button$/, fn state, %{argument_one: _argument_one} ->
+
+
+    {:ok, state}
+  end
+
+
 end

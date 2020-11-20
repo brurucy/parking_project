@@ -30,6 +30,7 @@ defmodule ParkingProjectWeb.Router do
   scope "/", ParkingProjectWeb do
     pipe_through [:browser, :browser_auth]
     get "/", PageController, :index
+    resources "/parkings", ParkingController
   end
 
   #scope "/", ParkingProjectWeb do
