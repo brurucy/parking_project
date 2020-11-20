@@ -162,4 +162,39 @@ defmodule WhiteBreadContext do
     {:ok, state}
   end
 
+  given_ ~r/^that I am logged in$/, fn state ->
+    navigate_to "/"
+    button_element = find_element(:id, "sign_in_button")
+    :timer.sleep(100)
+    click button_element
+    :timer.sleep(500)
+    email_field = find_element(:id, "email")
+    input_into_field(email_field, "bruno98@ut.ee")
+    :timer.sleep(500)
+    password_field = find_element(:id, "password")
+    input_into_field(password_field, "parool")
+    :timer.sleep(250)
+    button_element = find_element(:id, "Submit")
+    :timer.sleep(500)
+    click button_element
+    :timer.sleep(500)
+    {:ok, state}
+  end
+
+  and_ ~r/^I have the application open$/, fn state ->
+    navigate_to "/"
+    {:ok, state}
+  end
+
+  and_ ~r/^I see the button Log out$/, fn state ->
+    :timer.sleep(500)
+    assert visible_in_page? ~r/Log out/
+    :timer.sleep(500)
+    {:ok, state}
+  end
+
+  when_ ~r/^I click on the button Log out$/, fn state ->
+    {:ok, state}
+  end
+
 end

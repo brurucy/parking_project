@@ -34,6 +34,6 @@ Feature: User Management
   Scenario: Logging out
     Given that I am logged in
     And I have the application open
-    And I see the button "Sign out"
-    When I click on the button "Sign out"
+    And I see the button Log out
+    When I click on the button Log out
     Then I am logged out of my account
