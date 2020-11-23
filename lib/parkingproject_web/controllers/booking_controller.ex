@@ -4,7 +4,7 @@ defmodule ParkingProjectWeb.BookingController do
   import Ecto.Query, only: [from: 2]
 
   alias ParkingProject.Repo
-  alias ParkingProject.BookingSpace.{Booking}
+  alias ParkingProject.ParkingSpace.{Booking}
   alias Ecto.{Changeset, Multi}
   alias ParkingProjectWeb.Geolocation
 
@@ -16,15 +16,15 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   def new(conn, _params) do
-    changeset = BOoking.changeset(%Booking{}, %{})
+    changeset = Booking.changeset(%Booking{}, %{})
     render conn, "new.html", changeset: changeset
   end
 
-  def create(conn, %{"parking" => parking_params}) do
+  def create(conn, %{"booking" => booking_params}) do
     user = ParkingProject.Authentication.load_current_user(conn)
 
-    parking_struct = Ecto.build_assoc(user, :parking, Enum.map(booking_params, fn({key, value}) -> {String.to_atom(key), value} end))
-    changeset = Booking.changeset(parking_struct, %{})
+    booking_struct = Ecto.build_assoc(user, :parking, Enum.map(booking_params, fn({key, value}) -> {String.to_atom(key), value} end))
+    changeset = Booking.changeset(booking_struct, %{})
                 |> Changeset.put_change(:status, "taken")
 
     case Repo.insert(changeset) do
