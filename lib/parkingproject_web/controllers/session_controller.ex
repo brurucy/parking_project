@@ -10,6 +10,7 @@ defmodule ParkingProjectWeb.SessionController do
 
   def create(conn, %{"session" => %{"email" => email, "password" => password}}) do
     user = Repo.get_by(User, email: email)
+    Repo.preload(user, :bookings)
     case ParkingProject.Authentication.check_credentials(user, password) do
       {:ok, _} ->
         conn
