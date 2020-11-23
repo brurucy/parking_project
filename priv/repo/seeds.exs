@@ -6,5 +6,5 @@ User.changeset(%User{},
         %{name: "RUcy",
           email: "bruno98@ut.ee",
           password: "parool",
-          license_plate: "666SATYR"})
+          license_plate: "666SATYR"}) |> Repo.insert()
         

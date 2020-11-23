@@ -4,7 +4,7 @@ defmodule ParkingProjectWeb.BookingController do
   import Ecto.Query, only: [from: 2]
 
   alias ParkingProject.Repo
-  alias ParkingProject.ParkingSpace.{Booking, Allocation}
+  alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking}
   alias Ecto.{Changeset, Multi}
   alias ParkingProjectWeb.Geolocation
 
