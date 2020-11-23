@@ -9,6 +9,7 @@ defmodule ParkingProjectWeb.SessionController do
   end
 
   def create(conn, %{"session" => %{"email" => email, "password" => password}}) do
+    IO.puts "EEEEE1"
     user = Repo.get_by(User, email: email)
     Repo.preload(user, :bookings)
     case ParkingProject.Authentication.check_credentials(user, password) do
@@ -25,6 +26,7 @@ defmodule ParkingProjectWeb.SessionController do
   end
 
   def delete(conn, _params) do
+    IO.puts "EEEEE2"
     conn
     |> ParkingProject.Authentication.logout()
     |> put_flash(:info, "Fine, leave then.")

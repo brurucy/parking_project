@@ -13,7 +13,7 @@ defmodule ParkingProject.ParkingSpace.Parking do
   end
 
   @doc false
-  def changeset(parking, attrs) do
+  def changeset(parking, attrs \\ %{}) do
     parking
     |> cast(attrs, [:spot, :category, :places, :latitude, :longitude])
     |> validate_required([:spot, :category, :places, :latitude, :longitude])

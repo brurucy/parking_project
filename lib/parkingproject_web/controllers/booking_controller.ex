@@ -10,17 +10,20 @@ defmodule ParkingProjectWeb.BookingController do
 
 
   def index(conn, _params) do
+    IO.puts "HMMMMM2"
     user = ParkingProject.Authentication.load_current_user(conn)
     bookings = Repo.all(from b in Booking, where: b.user_id == ^user.id)
     render conn, "index.html", bookings: bookings
   end
 
   def new(conn, _params) do
+    IO.puts "HMMMMM1"
     changeset = Booking.changeset(%Booking{}, %{})
     render conn, "new.html", changeset: changeset
   end
 
   def create(conn, %{"booking" => booking_params}) do
+    IO.puts "HMMMMM3"
     user = ParkingProject.Authentication.load_current_user(conn)
 
     booking_struct = Enum.map(booking_params, fn({key, value}) -> {String.to_atom(key), value} end)
@@ -55,7 +58,7 @@ defmodule ParkingProjectWeb.BookingController do
 
         closest_parking_space_occupied_spots = elem(Repo.one(query), 0)
         parking_id = elem(Repo.one(query), 1)
-        IO.puts closest_parking_space_occupied_spots, label: "IDK"
+        IO.inspect closest_parking_space_occupied_spots, label: "IDK"
         case closest_parking_space_occupied_spots < closest_parking_place.spots do
           true ->
             distance = spot_to_distance[closest_parking_place]
@@ -80,7 +83,7 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   defp flashTheChangeset(conn, changeset) do
-
+    IO.puts "HMMMMM4"
     errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Enum.reduce(opts, msg, fn {key, value}, acc ->
         String.replace(acc, "%{#{key}}", to_string(value))

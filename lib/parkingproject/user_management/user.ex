@@ -14,10 +14,10 @@ defmodule ParkingProject.UserManagement.User do
   end
 
   @doc false
-  def changeset(user, attrs) do
+  def changeset(user, attrs \\ %{}) do
     user
     |> cast(attrs, [:name, :email, :license_plate, :password])
-    |> validate_required([:name, :email,:license_plate, :password])
+    |> validate_required([:name, :email, :license_plate, :password])
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
     |> hash_password
