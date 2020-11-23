@@ -29,6 +29,7 @@
     <%= error_tag user, :password %>
 </div>
 
+
 <div class="form-group">
     <%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
 </div>

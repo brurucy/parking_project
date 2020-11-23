@@ -11,6 +11,11 @@ Feature: Interactive search of parking space
     And I am on the App
     Then I click on the "park" button
     And it takes me to the parking form
+    And the following parking spaces are available
+      | Spot    | Category | Places | Latitude  | Longitude |
+      | Vabriku |  B       | 3      | 58.37681  | 26.70399  |
+      | Lossi   |  A       | 30     | 58.37927  | 26.71754  |
+      | Jakobi  |  A       | 50     | 58.38237  | 26.71489  |
     When I fill the form with "Raatuse 23"
     And submit it
     Then it should give me the closest parking space
