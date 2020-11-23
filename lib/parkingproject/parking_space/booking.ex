@@ -11,7 +11,7 @@ defmodule ParkingProject.ParkingSpace.Booking do
   end
 
   @doc false
-  def changeset(booking, attrs) do
+  def changeset(booking, attrs \\ %{}) do
     booking
     |> cast(attrs, [:destination, :status])
     |> validate_required([:destination, :status])
