@@ -4,7 +4,7 @@ defmodule ParkingProjectWeb.BookingController do
   import Ecto.Query, only: [from: 2]
 
   alias ParkingProject.Repo
-  alias ParkingProject.ParkingSpace.{Booking}
+  alias ParkingProject.ParkingSpace.{Booking, Allocation}
   alias Ecto.{Changeset, Multi}
   alias ParkingProjectWeb.Geolocation
 
@@ -36,25 +36,36 @@ defmodule ParkingProjectWeb.BookingController do
     case Repo.insert(changeset) do
       {:ok, _} ->
         ## get all parking spots
-        query = nil
+        query = from p in Parking, select: p
+        all_spots = Repo.all(query)
+        spot_to_distance = %{}
         ## iterate over them and get their distance from there to booking_params.destination
-        distances_parking_spots_to_destination = nil
-        ## get the closest one
-        closest_parking_place = nil
+        distances_parking_spots_to_destination = all_spots 
+                  |> Enum.each(fn(s) -> Map.put(spot_to_distance, s, Geolocation.distance(booking_params.destination, s.spot)) end)
+                  |> Enum.sort(fn(x, y) -> x <= y end)
+                          ## get the closest one
+        closest_parking_place = List.first(Maps.keys(distances_parking_spots_to_destination))
         ## I do not know what amir meant by duration?
         # [dist, duration] = Geolocation.distance(booking_params.destination, foundParkingArea)
         ## !! We also need to check IF the count of how many bookings with the given parking spot does not except the number of spots
         ## do a query on the db
-        closest_parking_space_spots = nil
-        case closest_parking_space_spots < closest_parking_place.spots do
+        query = from a in Allocation, 
+        join: p in Parking, on: a.parking == p,
+        where: p.spot == ^closest_parking_place.spot, select: {count(a), p.id}
+
+        closest_parking_space_occupied_spots = elem(Repo.one(query), 0)
+        parking_id = elem(Repo.one(query), 1)
+        IO.puts closest_parking_space_occupied_spots, label: "IDK"
+        case closest_parking_space_occupied_spots < closest_parking_place.spots do
           true ->
+            distance = spot_to_distance[closest_parking_place]
             Multi.new
-            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, struct.id) |> Changeset.put_change(:taxi_id, taxi.id))
-            |> Multi.update(:booking, Booking.changeset(struct, %{}) |> Changeset.put_change(:status, "allocated"))
+            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_struct.id) |> Changeset.put_change(:parking_id, parking_id))
+            |> Multi.update(:booking, Booking.changeset(booking_struct, %{}) |> Changeset.put_change(:status, "allocated"))
             |> Repo.transaction
 
             conn
-            |> put_flash(:info, "BOoking confirmed, distance: #{dis}, duration: #{dur}")
+            |> put_flash(:info, "Booking confirmed, distance: #{distance}")
             |> redirect(to: Routes.booking_path(conn, :index))
           _ ->
         end
