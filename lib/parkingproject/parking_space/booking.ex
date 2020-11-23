@@ -5,6 +5,7 @@ defmodule ParkingProject.ParkingSpace.Booking do
   schema "booking" do
     field :destination, :string
     field :status, :string
+    field :duration, :float
     belongs_to :user, ParkingProject.UserManagement.User
     timestamps()
   end
