@@ -7,7 +7,6 @@ defmodule Parkingproject.Repo.Migrations.CreateUsers do
       add :email, :string
       add :license_plate, :string
       add :hashed_password, :string
-
       timestamps()
     end
 

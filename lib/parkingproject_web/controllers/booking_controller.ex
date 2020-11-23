@@ -1,41 +1,41 @@
-defmodule ParkingProjectWeb.ParkingController do
+defmodule ParkingProjectWeb.BookingController do
   use ParkingProjectWeb, :controller
 
   import Ecto.Query, only: [from: 2]
 
   alias ParkingProject.Repo
-  alias ParkingProject.ParkingSpace.{Parking}
+  alias ParkingProject.BookingSpace.{Booking}
   alias Ecto.{Changeset, Multi}
   alias ParkingProjectWeb.Geolocation
 
 
   def index(conn, _params) do
     user = ParkingProject.Authentication.load_current_user(conn)
-    parkings = Repo.all(from b in Parking, where: b.user_id == ^user.id)
-    render conn, "index.html", parkings: parkings
+    bookings = Repo.all(from b in Booking, where: b.user_id == ^user.id)
+    render conn, "index.html", bookings: bookings
   end
 
   def new(conn, _params) do
-    changeset = Parking.changeset(%Parking{}, %{})
+    changeset = BOoking.changeset(%Booking{}, %{})
     render conn, "new.html", changeset: changeset
   end
 
   def create(conn, %{"parking" => parking_params}) do
     user = ParkingProject.Authentication.load_current_user(conn)
 
-    parking_struct = Ecto.build_assoc(user, :parking, Enum.map(parking_params, fn({key, value}) -> {String.to_atom(key), value} end))
-    changeset = Parking.changeset(parking_struct, %{})
-                  |> Changeset.put_change(:status, "taken")
+    parking_struct = Ecto.build_assoc(user, :parking, Enum.map(booking_params, fn({key, value}) -> {String.to_atom(key), value} end))
+    changeset = Booking.changeset(parking_struct, %{})
+                |> Changeset.put_change(:status, "taken")
 
     case Repo.insert(changeset) do
       {:ok, _} ->
 
         foundParkingArea = "Narva maantee 18, 51009, Tartu"
-        [dis, dur] = Geolocation.distance(parking_params.destination, foundParkingArea)
+        [dis, dur] = Geolocation.distance(booking_params.destination, foundParkingArea)
 
         conn
-          |> put_flash(:info, "Parking confirmed, distance: #{dis}, duration: #{dur}")
-          |> redirect(to: Routes.parking_path(conn, :index))
+        |> put_flash(:info, "BOoking confirmed, distance: #{dis}, duration: #{dur}")
+        |> redirect(to: Routes.booking_path(conn, :index))
 
       _ ->
 
@@ -60,7 +60,7 @@ defmodule ParkingProjectWeb.ParkingController do
       |> Enum.join("\n")
 
     conn
-      |> put_flash(:error, error_msg)
+    |> put_flash(:error, error_msg)
   end
 
 end
