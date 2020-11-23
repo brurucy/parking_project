@@ -2,7 +2,7 @@ defmodule ParkingProject.ParkingSpace.Booking do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "booking" do
+  schema "bookings" do
     field :destination, :string
     field :status, :string
     field :duration, :float

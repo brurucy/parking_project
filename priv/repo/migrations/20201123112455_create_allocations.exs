@@ -6,7 +6,6 @@ defmodule Parkingproject.Repo.Migrations.CreateAllocations do
       add :status, :string
       add :booking_id, references(:bookings)
       add :parking_id, references(:parkings)
-
       timestamps()
     end
     create unique_index(:allocations, [:booking_id, :parking_id])

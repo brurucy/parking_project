@@ -1,4 +1,4 @@
-defmodule Parkingproject.Repo.Migrations.CreateBooking do
+defmodule Parkingproject.Repo.Migrations.CreateBookings do
   use Ecto.Migration
 
   def change do
