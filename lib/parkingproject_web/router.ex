@@ -30,7 +30,7 @@ defmodule ParkingProjectWeb.Router do
   scope "/", ParkingProjectWeb do
     pipe_through [:browser, :browser_auth]
     get "/", PageController, :index
-    resources "/bookings", ParkingController
+    resources "/bookings", BookingController
   end
 
   if Mix.env() in [:dev, :test] do
