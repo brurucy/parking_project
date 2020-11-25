@@ -46,20 +46,24 @@ defmodule ParkingProjectWeb.BookingController do
         spot_to_distance = %{}
         name_to_spot = %{}
 
-        all_spots |> Enum.each(fn(s) -> Map.put(name_to_spot, s.spot, s) end)
+        name_to_spot = Enum.reduce all_spots, %{}, fn x, acc ->
+          Map.put(acc, x.spot, x) 
+        end
+
         ## iterate over them and get their distance from there to booking_params.destination
         IO.inspect all_spots, label: "all spots"
         IO.inspect booking_params, label: "booking params"
         spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
-          Map.put(acc, x.spot, Geolocation.distance(booking_params["destination"], x.spot))
+          Map.put(acc, x.spot, List.first(Geolocation.distance(booking_params["destination"], x.spot)))
         end
                             ## get the closest one
         IO.inspect spot_to_distance, label: "spot to distance"
-        closest_parking_place = spot_to_distance
-        |> Enum.min_by(fn {_k, v} -> length(v) end)
+        closest_parking_place_name = spot_to_distance
+        |> Enum.min_by(fn {_k, v} -> v end)
         |> elem(0)
 
-        IO.inspect closest_parking_place, label: "closest parking place"
+        IO.inspect closest_parking_place_name, label: "closest parking place"
+        closest_parking_place = name_to_spot[closest_parking_place_name]
         ## I do not know what amir meant by duration?
         # [dist, duration] = Geolocation.distance(booking_params.destination, foundParkingArea)
         ## !! We also need to check IF the count of how many bookings with the given parking spot does not except the number of spots
