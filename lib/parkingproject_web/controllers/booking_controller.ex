@@ -48,7 +48,7 @@ defmodule ParkingProjectWeb.BookingController do
         IO.inspect all_spots, label: "all spots"
         IO.inspect booking_params, label: "booking params"
         distances_parking_spots_to_destination = all_spots 
-                  |> Enum.each(fn(s) -> Map.put(spot_to_distance, s, Geolocation.distance(booking_params.destination, s.spot)) end)
+                  |> Enum.each(fn(s) -> Map.put(spot_to_distance, s, Geolocation.distance(booking_params["destination"], s.spot)) end)
                   |> Enum.sort(fn(x, y) -> x <= y end)
                           ## get the closest one
         closest_parking_place = List.first(Maps.keys(distances_parking_spots_to_destination))
