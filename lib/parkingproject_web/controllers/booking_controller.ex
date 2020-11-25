@@ -22,6 +22,15 @@ defmodule ParkingProjectWeb.BookingController do
     render conn, "new.html", changeset: changeset
   end
 
+  def case_func(query) do
+    case Repo.one(query) != nil do
+      true ->
+        elem(Repo.one(query), 0)
+      false ->
+        0
+      end
+  end
+
   def create(conn, %{"booking" => booking_params}) do
     IO.puts "HMMMMM3"
     user = ParkingProject.Authentication.load_current_user(conn)
@@ -50,6 +59,7 @@ defmodule ParkingProjectWeb.BookingController do
           Map.put(acc, x.spot, x) 
         end
 
+        IO.inspect name_to_spot, label: "name_to_spot"
         ## iterate over them and get their distance from there to booking_params.destination
         IO.inspect all_spots, label: "all spots"
         IO.inspect booking_params, label: "booking params"
@@ -75,15 +85,17 @@ defmodule ParkingProjectWeb.BookingController do
         group_by: p.id,
         select: {count(a), p.id}
 
+        closest_parking_space_occupied_spots = case_func(query)
+        
+
         IO.inspect Repo.one(query), label: "query"
-        closest_parking_space_occupied_spots = elem(Repo.one(query), 0)
-        parking_id = elem(Repo.one(query), 1)
         IO.inspect closest_parking_space_occupied_spots, label: "IDK"
+        IO.inspect closest_parking_place.id, label: "parking id"
         case closest_parking_space_occupied_spots < closest_parking_place.spots do
           true ->
             distance = spot_to_distance[closest_parking_place]
             Multi.new
-            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_struct.id) |> Changeset.put_change(:parking_id, parking_id))
+            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_struct.id) |> Changeset.put_change(:parking_id, closest_parking_place.id))
             |> Multi.update(:booking, Booking.changeset(booking_struct, %{}) |> Changeset.put_change(:status, "allocated"))
             |> Repo.transaction
 
