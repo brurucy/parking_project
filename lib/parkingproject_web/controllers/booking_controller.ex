@@ -46,6 +46,7 @@ defmodule ParkingProjectWeb.BookingController do
         spot_to_distance = %{}
         ## iterate over them and get their distance from there to booking_params.destination
         IO.inspect all_spots, label: "all spots"
+        IO.inspect booking_params, label: "booking params"
         distances_parking_spots_to_destination = all_spots 
                   |> Enum.each(fn(s) -> Map.put(spot_to_distance, s, Geolocation.distance(booking_params.destination, s.spot)) end)
                   |> Enum.sort(fn(x, y) -> x <= y end)

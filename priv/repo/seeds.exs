@@ -15,7 +15,7 @@ User.changeset(%User{},
 %{spot: "Lossi", category: "A", places: 30, latitude: 58.37927, longitude: 26.71754},
 %{spot: "Jakobi", category: "A", places: 50, latitude: 58.38237, longitude: 26.71489}]
 |> Enum.map(fn parking_data -> Parking.changeset(%Parking{}, parking_data) end)
-|> Enum.each(fn changeset -> Repo.insert!(changeset) end)
+|> Enum.each(fn changeset -> Repo.insert(changeset) end)
 
 
 
