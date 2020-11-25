@@ -41,7 +41,7 @@ defmodule ParkingProjectWeb.BookingController do
       {:ok, _} ->
         IO.puts "test2"
         ## get all parking spots
-        query = from p in Parking, select: p
+        query = from p in Parkings, select: p
         all_spots = Repo.all(query)
         spot_to_distance = %{}
         ## iterate over them and get their distance from there to booking_params.destination
