@@ -69,8 +69,11 @@ defmodule ParkingProjectWeb.BookingController do
         ## !! We also need to check IF the count of how many bookings with the given parking spot does not except the number of spots
         ## do a query on the db
         query = from a in Allocation, 
-        join: p in Parking, on: a.parking_id == p.id,
-        where: p.spot == ^closest_parking_place.spot, select: {count(a), p.id}
+        join: p in Parking, 
+        on: a.parking_id == p.id,
+        where: p.spot == ^closest_parking_place.spot, 
+        group_by: p.id,
+        select: {count(a), p.id}
 
         closest_parking_space_occupied_spots = elem(Repo.one(query), 0)
         parking_id = elem(Repo.one(query), 1)
