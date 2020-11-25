@@ -36,8 +36,10 @@ defmodule ParkingProjectWeb.BookingController do
                 |> Changeset.put_change(:user, user)
                 |> Changeset.put_change(:status, "taken")
 
+    IO.puts "test1"
     case Repo.insert(changeset) do
       {:ok, _} ->
+        IO.puts "test2"
         ## get all parking spots
         query = from p in Parking, select: p
         all_spots = Repo.all(query)
