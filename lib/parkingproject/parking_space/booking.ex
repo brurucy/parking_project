@@ -13,7 +13,7 @@ defmodule ParkingProject.ParkingSpace.Booking do
   @doc false
   def changeset(booking, attrs \\ %{}) do
     booking
-    |> cast(attrs, [:destination, :status, :duration, :user])
+    |> cast(attrs, [:destination, :status, :duration])
     |> validate_required([:destination, :duration])
   end
 end
