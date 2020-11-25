@@ -91,11 +91,11 @@ defmodule ParkingProjectWeb.BookingController do
         IO.inspect Repo.one(query), label: "query"
         IO.inspect closest_parking_space_occupied_spots, label: "IDK"
         IO.inspect closest_parking_place.id, label: "parking id"
-        case closest_parking_space_occupied_spots < closest_parking_place.places do
+        case closest_parking_space_occupied_spots < closest_parking_place[places] do
           true ->
             distance = spot_to_distance[closest_parking_place]
             Multi.new
-            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_struct.id) |> Changeset.put_change(:parking_id, closest_parking_place.id))
+            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_struct.id) |> Changeset.put_change(:parking_id, closest_parking_place["id"]))
             |> Multi.update(:booking, Booking.changeset(booking_struct, %{}) |> Changeset.put_change(:status, "allocated"))
             |> Repo.transaction
 
