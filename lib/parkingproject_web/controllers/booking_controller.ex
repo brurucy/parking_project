@@ -42,7 +42,7 @@ defmodule ParkingProjectWeb.BookingController do
 
     changeset = %Booking{}
                 |> Booking.changeset(booking_struct)
-                ##|> Changeset.put_change(:user, user)
+                |> Changeset.put_change(:user, user)
                 |> Changeset.put_change(:status, "taken")
 
     IO.puts "test1"
