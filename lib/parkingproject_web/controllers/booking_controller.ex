@@ -75,6 +75,7 @@ defmodule ParkingProjectWeb.BookingController do
         group_by: p.id,
         select: {count(a), p.id}
 
+        IO.inspect Repo.one(query), label: "query"
         closest_parking_space_occupied_spots = elem(Repo.one(query), 0)
         parking_id = elem(Repo.one(query), 1)
         IO.inspect closest_parking_space_occupied_spots, label: "IDK"
