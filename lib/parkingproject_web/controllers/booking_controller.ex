@@ -44,14 +44,21 @@ defmodule ParkingProjectWeb.BookingController do
         query = from p in Parking, select: p
         all_spots = Repo.all(query)
         spot_to_distance = %{}
+        name_to_spot = %{}
+
+        all_spots |> Enum.each(fn(s) -> Map.put(name_to_spot, s.spot, s))
         ## iterate over them and get their distance from there to booking_params.destination
         IO.inspect all_spots, label: "all spots"
         IO.inspect booking_params, label: "booking params"
-        distances_parking_spots_to_destination = all_spots 
-                  |> Enum.each(fn(s) -> Map.put(spot_to_distance, s, Geolocation.distance(booking_params["destination"], s.spot)) end)
-                  |> Enum.sort(fn(x, y) -> x <= y end)
+        all_spots 
+          |> Enum.each(fn(s) -> Map.put(spot_to_distance, s.spot, Geolocation.distance(booking_params["destination"], s.spot)) end)
+                  
                           ## get the closest one
-        closest_parking_place = List.first(Maps.keys(distances_parking_spots_to_destination))
+        closest_parking_place = all_spots
+        |> Enum.min_by(fn {_k, v} -> length(v) end)
+        |> elem(0)
+
+        IO.inspect closest_parking_place, label: "closest parking place"
         ## I do not know what amir meant by duration?
         # [dist, duration] = Geolocation.distance(booking_params.destination, foundParkingArea)
         ## !! We also need to check IF the count of how many bookings with the given parking spot does not except the number of spots
