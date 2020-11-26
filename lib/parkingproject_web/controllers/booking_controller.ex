@@ -39,7 +39,7 @@ defmodule ParkingProjectWeb.BookingController do
                      |> Enum.into(%{})
 
     
-    booking_struct = Map.delete(booking_struct, "user")
+    booking_struct = Map.delete(booking_struct, :user)
     IO.inspect booking_struct
     
 
