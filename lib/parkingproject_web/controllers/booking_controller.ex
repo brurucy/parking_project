@@ -43,13 +43,13 @@ defmodule ParkingProjectWeb.BookingController do
     IO.inspect booking_struct
     
 
-    changeset = %Booking{}
+    booking_changeset = %Booking{}
                 |> Booking.changeset(booking_struct)
                 |> Changeset.put_change(:user, user)
                 |> Changeset.put_change(:status, "taken")
 
     IO.puts "test1"
-    case Repo.insert(changeset) do
+    case Repo.insert(booking_changeset) do
       {:ok, _} ->
         IO.puts "test2"
         ## get all parking spots
@@ -98,8 +98,8 @@ defmodule ParkingProjectWeb.BookingController do
           true ->
             distance = spot_to_distance[closest_parking_place]
             Multi.new
-            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_struct["id"]) |> Changeset.put_change(:parking_id, closest_parking_place.id))
-            |> Multi.update(:booking, Booking.changeset(booking_struct, %{}) |> Changeset.put_change(:status, "allocated"))
+            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_changeset) |> Changeset.put_change(:parking_id, closest_parking_place))
+            |> Multi.update(:booking, Booking.changeset(booking_changeset, %{}) |> Changeset.put_change(:status, "allocated"))
             |> Repo.transaction
 
             conn
@@ -111,8 +111,8 @@ defmodule ParkingProjectWeb.BookingController do
       _ ->
 
         conn
-        |> flashTheChangeset(changeset)
-        |> render("new.html", changeset: changeset)
+        |> flashTheChangeset(booking_changeset)
+        |> render("new.html", changeset: booking_changeset)
       end
 
   end
