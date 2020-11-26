@@ -1,0 +1,14 @@
+<%= form_for @changeset, Routes.booking_path(@conn, :create), fn booking -> %>
+<h2>Book your parking!</h2>
+<div class="form-group">
+    <%= label booking, :destination, class: "control-label" %>
+    <%= text_input booking, :destination, id: "destination", class: "form-control" %>
+</div>
+<div class="form-group">
+    <%= label booking, :duration, class: "control-label" %>
+    <%= text_input booking, :duration, id: "duration", class: "form-control" %>
+</div>
+<div class="form-group">
+    <%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
+</div>
+<% end %>

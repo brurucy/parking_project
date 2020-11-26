@@ -1,0 +1,25 @@
+<h2>Listing bookings</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Spot =)
+            </th>
+            <th>
+                Destination
+            </th>
+            <th>
+                Duration
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    <%= for booking <- @bookings do %>
+        <tr>
+            <td><%= booking.destination %></td>
+            <td><%= booking.duration %></td>
+        </tr>
+    <% end %>
+    </tbody>
+</table>
