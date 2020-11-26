@@ -38,7 +38,10 @@ defmodule ParkingProjectWeb.BookingController do
     booking_struct = Enum.map(booking_params, fn({key, value}) -> {String.to_atom(key), value} end)
                      |> Enum.into(%{})
 
+    
+    booking_struct = Map.delete(booking_struct, "user")
     IO.inspect booking_struct
+    
 
     changeset = %Booking{}
                 |> Booking.changeset(booking_struct)
