@@ -4,7 +4,7 @@
     <thead>
         <tr>
             <th>
-                Spot =)
+                Spot :3
             </th>
             <th>
                 Destination
@@ -12,13 +12,22 @@
             <th>
                 Duration
             </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Distance
+            </th>
         </tr>
     </thead>
     <tbody>
     <%= for booking <- @bookings do %>
         <tr>
-            <td><%= booking.destination %></td>
-            <td><%= booking.duration %></td>
+            <td><%= elem booking, 0 %></td>
+            <td><%= elem booking, 1 %></td>
+            <td><%= elem booking, 2 %></td>
+            <td><%= elem booking, 3 %></td>
+            <td><%= elem booking, 4 %></td>
         </tr>
     <% end %>
     </tbody>

@@ -3,7 +3,8 @@ defmodule WhiteBreadContext do
   use Hound.Helpers
 
   alias ParkingProject.{Repo}
-  alias ParkingProject.{UserManagement.User, ParkingSpace.Parking}
+  alias ParkingProject.{UserManagement.User, ParkingSpace.Parking, ParkingSpace.Booking, ParkingSpace.Allocation}
+  alias Ecto.Changeset
 
   feature_starting_state fn ->
     Application.ensure_all_started(:hound)
@@ -13,11 +14,10 @@ defmodule WhiteBreadContext do
     Hound.start_session
     Ecto.Adapters.SQL.Sandbox.checkout(ParkingProject.Repo)
     Ecto.Adapters.SQL.Sandbox.mode(ParkingProject.Repo, {:shared, self()})
-    %{}
   end
   scenario_finalize fn _status, _state ->
     Ecto.Adapters.SQL.Sandbox.checkin(ParkingProject.Repo)
-    #Hound.end_session
+    Hound.end_session
   end
 
   given_ ~r/^that I am logged in$/, fn state ->
@@ -102,7 +102,6 @@ defmodule WhiteBreadContext do
     :timer.sleep(250)
     input_into_field(duration_field, duration_time)
     :timer.sleep(250)
-
     {:ok, state}
   end
 
@@ -114,9 +113,55 @@ defmodule WhiteBreadContext do
     {:ok, state}
   end
 
-  then_ ~r/^it should give me the closest parking space$/, fn state ->
+  then_ ~r/^it should give me the closest parking space "(?<closest_parking_place>[^"]+)" and a confirmation$/,
+  fn state, %{closest_parking_place: closest_parking_place} ->
     :timer.sleep(2000)
+    assert visible_in_page? ~r/Parking confirmed #{closest_parking_place}/
+    {:ok, state}
+  end
 
+  then_ ~r/^I click to log-out$/, fn state ->
+    log_out_button_element = find_element(:id, "logout_button")
+    click log_out_button_element
+    {:ok, state}
+  end
+
+  # here starts display parking space details
+
+  then_ ~r/^I click on "(?<my_parking_button>[^"]+)" button$/, fn state, %{my_parking_button: my_parking_button} ->
+    my_parking_button = find_element(:id, "my_parking_button")
+    click my_parking_button
+    {:ok, state}
+  end
+
+  and_ ~r/^it takes me to the index of parkings$/, fn state ->
+    user = Repo.get(User, 1)
+    booking = %Booking{}
+              |> Booking.changeset(%{duration: 10.0, destination: "Raatuse 23", distance: 5.0})
+              |> Changeset.put_change(:user, user)
+              |> Changeset.put_change(:status, "taken")
+              |> Repo.insert!
+              #|> Repo.preload(:user)
+
+    IO.inspect booking, label: "yikes"
+
+    parking = Repo.get(Parking, 1)
+
+    allocation = %Allocation{}
+                 |> Allocation.changeset(%{status: "active"})
+                 |> Changeset.put_change(:booking_id, booking.id)
+                 |> Changeset.put_change(:parking_id, parking.id)
+                 |> Repo.insert!
+                # |> Repo.preload(:user, :booking)
+
+    IO.inspect allocation, label: "yikes2"
+
+    assert visible_in_page? ~r/Listing bookings/
+    {:ok, state}
+  end
+
+  then_ ~r/^it shows me all my past parkings info$/, fn state ->
+    navigate_to "/bookings"
     {:ok, state}
   end
 
