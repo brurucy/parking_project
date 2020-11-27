@@ -12,7 +12,7 @@ defmodule ParkingProject.ParkingSpace.Allocation do
   @doc false
   def changeset(allocation, attrs \\ %{}) do
     allocation
-    |> cast(attrs, [:status, :booking_id, :parking_id])
-    |> validate_required([:status, :booking_id, :parking_id])
+    |> cast(attrs, [:status])
+    |> validate_required([:status])
   end
 end

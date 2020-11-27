@@ -8,6 +8,8 @@ defmodule ParkingProjectWeb.BookingController do
   alias Ecto.{Changeset, Multi}
   alias ParkingProjectWeb.Geolocation
 
+  #To test in iex
+  #ParkingProject.Repo.all(Ecto.Query.from a in ParkingProject.ParkingSpace.Allocation, join: p in ParkingProject.ParkingSpace.Parking, on: a.parking_id == p.id, join: b in ParkingProject.ParkingSpace.Booking, on: a.booking_id == b.id, where: a.booking_id == 13, select: {p.spot, b.destination, b.duration})
 
   def index(conn, _params) do
     IO.puts "HMMMMM2"
@@ -15,15 +17,17 @@ defmodule ParkingProjectWeb.BookingController do
     booking_query = from b in Booking,
                     where: b.user_id == ^user.id
     bookings = Repo.all(booking_query)
-    #Repo.preload(user, :bookings)
-    #query_pspot = from a in Allocation,
-    #              join: p in Parking,
-    #              on: a.parking_id == p.id,
-    #              where: a.booking_id == ^bookings.id,
-    #              select: p.spot
-    #parking_sl = Repo.all(query_pspot)
+    query_pspot = from a in Allocation,
+                  join: p in Parking,
+                  on: a.parking_id == p.id,
+                  join: b in Booking,
+                  on: a.booking_id == b.id,
+                  where: a.booking_id in ^(bookings |> Enum.map(fn x -> x.id end)) ,
+                  select: {p.spot, b.destination, b.duration}
+    parking_sl = Repo.all(query_pspot)
 
-    IO.inspect bookings, label: "skkkkkkkkkkkkkkkkkk"
+    IO.inspect bookings, label: "yeeeet"
+    IO.inspect parking_sl, label: "gucci gang, ooh, yuh, lil pump"
 
     render conn, "index.html", bookings: bookings
   end
@@ -62,7 +66,7 @@ defmodule ParkingProjectWeb.BookingController do
 
     IO.puts "test1"
     case Repo.insert(booking_changeset) do
-      {:ok, _} ->
+      {:ok, booking_insertion} ->
         IO.puts "test2"
         ## get all parking spots
         query = from p in Parking, select: p
@@ -94,47 +98,38 @@ defmodule ParkingProjectWeb.BookingController do
         ## !! We also need to check IF the count of how many bookings with the given parking spot does not except the number of spots
         ## do a query on the db
         query = from a in Allocation, 
-        join: p in Parking, 
-        on: a.parking_id == p.id,
-        where: p.spot == ^closest_parking_place.spot, 
-        group_by: p.id,
-        select: {count(a), p.id}
+          join: p in Parking,
+          on: a.parking_id == p.id,
+          where: p.spot == ^closest_parking_place.spot,
+          group_by: p.id,
+          select: {count(a), p.id}
 
         closest_parking_space_occupied_spots = case_func(query)
-        
 
         IO.inspect Repo.one(query), label: "query"
         IO.inspect closest_parking_space_occupied_spots, label: "IDK"
         IO.inspect closest_parking_place.id, label: "parking id"
+        IO.inspect booking_insertion.id, label: "booking id"
         case closest_parking_space_occupied_spots < closest_parking_place.places do
           true ->
             distance = spot_to_distance[closest_parking_place.spot]
 
-            allocation_changeset = %Allocation{}
-                                   |> Changeset.put_change(:booking, booking_changeset)
-                                   |> Changeset.put_change(:parking, closest_parking_place)
-                                   |> Changeset.put_change(:status, "allocated")
-
-            booking_changeset |> Booking.changeset(%{}) |> Changeset.put_change(:status, "taken") |> Repo.insert()
-
-            allocation_changeset |> Repo.insert()
-
-            #Multi.new
-            #|> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "taken"}) |> Changeset.put_change(:booking_id, booking_changeset) |> Changeset.put_change(:parking_id, closest_parking_place))
-            #|> Multi.update(:booking, Booking.changeset(booking_changeset, %{}) |> Changeset.put_change(:status, "allocated"))
-            #|> Repo.transaction
+            Multi.new
+            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, closest_parking_place.id))
+            |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open"))
+            |> Repo.transaction
 
             conn
-            |> put_flash(:info, "Booking confirmed, distance: #{distance}")
+            #|> put_flash(:info, "Booking confirmed, distance: #{distance}")
+            |> put_flash(:info, "Parking confirmed")
             |> redirect(to: Routes.booking_path(conn, :index))
           _ ->
         end
 
-      _ ->
-
+      {:error, changeset} ->
         conn
-        |> flashTheChangeset(booking_changeset)
-        |> render("new.html", changeset: booking_changeset)
+        |> flashTheChangeset(changeset)
+        |> render("new.html", changeset: changeset)
       end
 
   end
