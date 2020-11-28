@@ -103,6 +103,7 @@ defmodule ParkingProjectWeb.BookingController do
           group_by: p.id,
           select: {count(a), p.id}
 
+        ## if allocation query is nil,  closest_parking_space_occupied_spots is 0. Else it is the nr of occupied spots
         closest_parking_space_occupied_spots = case_func(query)
 
         case closest_parking_space_occupied_spots < closest_parking_place.places do
