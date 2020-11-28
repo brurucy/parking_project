@@ -69,16 +69,19 @@ defmodule ParkingProjectWeb.BookingController do
         ## get all parking spots
         query = from p in Parking, select: p
         all_spots = Repo.all(query)
+
+        ## key = parking.spot, value = distance from destination
         spot_to_distance = %{}
+
+        ## key = parking.spot, value = parking object
         name_to_spot = %{}
 
         name_to_spot = Enum.reduce all_spots, %{}, fn x, acc ->
           Map.put(acc, x.spot, x) 
         end
 
-        IO.inspect name_to_spot, label: "merlin what is this?"
+        IO.inspect name_to_spot, label: "merlin what is this? check above"
 
-        # ????
         spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
           Map.put(acc, x.spot, List.first(Geolocation.distance(booking_params["destination"], x.spot)))
         end
