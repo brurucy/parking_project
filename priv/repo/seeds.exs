@@ -1,7 +1,7 @@
 alias ParkingProject.Repo
 alias ParkingProject.UserManagement.User
 
-alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking}
+alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking, Zone}
 
 
 User.changeset(%User{},
@@ -18,5 +18,7 @@ User.changeset(%User{},
 |> Enum.each(fn changeset -> Repo.insert(changeset) end)
 
 
-
-        
+[%{name: "A", pricePerHour: 2, pricePer5mins: 16},
+%{name: "B", pricePerHour: 1, pricePer5mins: 8}]
+|> Enum.map(fn zone -> Zone.changeset(%Zone{}, zone) end)
+|> Enum.each(fn changeset -> Repo.insert(changeset) end)
