@@ -28,7 +28,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Disneyland1", duration: 50.0]}
+    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "cdsbchjbdjf", duration: 50.0]}
     :timer.sleep(3000)
     conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Destination is invalid/
