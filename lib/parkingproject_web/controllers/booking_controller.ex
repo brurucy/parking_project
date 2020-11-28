@@ -80,13 +80,14 @@ defmodule ParkingProjectWeb.BookingController do
           Map.put(acc, x.spot, x) 
         end
 
-        IO.inspect name_to_spot, label: "merlin what is this? check above"
+        #IO.inspect name_to_spot, label: "merlin what is this? check above"
 
         spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
+          IO.inspect Geolocation.distance(booking_params["destination"], x.spot), "geolocation",
           Map.put(acc, x.spot, List.first(Geolocation.distance(booking_params["destination"], x.spot)))
         end
 
-        IO.inspect spot_to_distance, label: "merlin what is this^2?"
+        #IO.inspect spot_to_distance, label: "merlin what is this^2?"
 
         ## get the closest one
         closest_parking_place_name = spot_to_distance
@@ -130,7 +131,7 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   defp flashTheChangeset(conn, changeset) do
-    IO.puts "HMMMMM4"
+    #IO.puts "HMMMMM4"
     errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Enum.reduce(opts, msg, fn {key, value}, acc ->
         String.replace(acc, "%{#{key}}", to_string(value))
