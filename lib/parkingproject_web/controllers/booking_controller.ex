@@ -47,6 +47,15 @@ defmodule ParkingProjectWeb.BookingController do
       end
   end
 
+  def spot_to_distance_func(x, acc, destination) do
+    case Geolocation.distance(destination, x.spot) do 
+      {:error, "Destination is invalid"} ->
+        Map.put(acc, "error", "Destination is invalid")
+      _ ->
+        Map.put(acc, x.spot, List.first(Geolocation.distance(destination, x.spot)))
+    end
+  end
+
   def create(conn, %{"booking" => booking_params}) do
     #IO.puts "HMMMMM3"
     user = ParkingProject.Authentication.load_current_user(conn)
@@ -62,33 +71,44 @@ defmodule ParkingProjectWeb.BookingController do
                 |> Changeset.put_change(:user, user)
                 |> Changeset.put_change(:status, "taken")
 
+    ## get all parking spots
+    query = from p in Parking, select: p
+    all_spots = Repo.all(query)
+
+    
+    ## key = parking.spot, value = distance from destination
+    spot_to_distance = %{}
+
+    spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
+
+      spot_to_distance_func(x, acc, booking_params["destination"])
+      
+    end
+
+    #IO.inspect spot_to_distance, label: "merlin what is this^2?"
+
+    # if destination is invalid
+    case Map.has_key?(spot_to_distance, "error") do
+      true ->
+        IO.puts "yes there was an error"
+        conn
+        |> put_flash(:error, spot_to_distance["error"])
+        |> render("new.html", changeset: Booking.changeset(%Booking{}, %{}))
+      false ->
+    end
+
     #IO.puts "test1"
     case Repo.insert(booking_changeset) do
       {:ok, booking_insertion} ->
      #   IO.puts "test2"
-        ## get all parking spots
-        query = from p in Parking, select: p
-        all_spots = Repo.all(query)
-
-        ## key = parking.spot, value = distance from destination
-        spot_to_distance = %{}
-
+      
         ## key = parking.spot, value = parking object
         name_to_spot = %{}
 
         name_to_spot = Enum.reduce all_spots, %{}, fn x, acc ->
           Map.put(acc, x.spot, x) 
         end
-
-        #IO.inspect name_to_spot, label: "merlin what is this? check above"
-
-        spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
-          
-          Map.put(acc, x.spot, List.first(Geolocation.distance(booking_params["destination"], x.spot)))
-         
-        end
-
-        #IO.inspect spot_to_distance, label: "merlin what is this^2?"
+     
 
         ## get the closest one
         closest_parking_place_name = spot_to_distance
