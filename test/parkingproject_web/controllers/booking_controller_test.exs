@@ -30,7 +30,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
     conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Disneyland1", duration: 50.0]}
     :timer.sleep(3000)
-    #conn = get conn, redirected_to(conn)
+    conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Destination is invalid/
   end
 
