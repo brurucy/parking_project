@@ -29,7 +29,8 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
     conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Disneyland", duration: 50.0]}
-    assert html_response(conn, 200) =~ ~r/Invalid destination/
+    conn = get conn, redirected_to(conn)
+    assert html_response(conn, 200) =~ ~r/Destination is invalid/
   end
 
 end
