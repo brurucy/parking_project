@@ -83,8 +83,9 @@ defmodule ParkingProjectWeb.BookingController do
         #IO.inspect name_to_spot, label: "merlin what is this? check above"
 
         spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
-          IO.inspect Geolocation.distance(booking_params["destination"], x.spot), "geolocation",
+          
           Map.put(acc, x.spot, List.first(Geolocation.distance(booking_params["destination"], x.spot)))
+          IO.inspect Geolocation.distance(booking_params["destination"], x.spot), "geolocation"
         end
 
         #IO.inspect spot_to_distance, label: "merlin what is this^2?"
