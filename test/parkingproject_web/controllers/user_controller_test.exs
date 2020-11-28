@@ -21,6 +21,14 @@ defmodule ParkingProjectWeb.UserControllerTest do
     assert html_response(conn, 200) =~ ~r/Oops, something went wrong! Please check the errors below./
   end
 
+  test "email taken", %{conn: conn} do
+    conn = post conn, "/users", %{user: [email: "bruno98@ut.ee",
+      password: "parool",
+      license_plate: "666SATYR",
+      name: "Rucy"]}
+    assert html_response(conn, 200) =~ ~r/Oops, something went wrong! Please check the errors below./
+  end
+
   test "password validation", %{conn: conn} do
     conn = post conn, "/users", %{user: [email: "bruno98@ut.ee",
       password: nil,
