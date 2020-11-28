@@ -28,17 +28,33 @@ defmodule ParkingProjectWeb.Geolocation do
     uri = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=#{o1},#{o2}&destinations=#{d1},#{d2}&travelMode=driving&timeUnit=seconds&distanceUnit=km&key=#{"AgALHCclAx-Vi1A0plbxmW0mxCpUO78S_PXWiZUILKn8BUv_AWSikExy49tFb0RC"}"
     response = HTTPoison.get! uri
 
-    IO.inspect response, label: "Response"
+    case HTTPoison.get uri do
+      {:ok, response} ->
+        matches = Regex.named_captures(~r/travelD\D+(?<dist>\d+.\d+)\D+(?<dur>\d+.\d+)/, response.body)
 
-    matches = Regex.named_captures(~r/travelD\D+(?<dist>\d+.\d+)\D+(?<dur>\d+.\d+)/, response.body)
-
-    case matches do
-      nil ->
-        {:error, "Destination is invalid"}
-      _ ->
-        [{v1, _}, {v2, _}] = [matches["dist"] |> Float.parse, matches["dur"] |> Float.parse]
-        [v1, v2]
+        case matches do
+          nil ->
+            {:error, "Destination is invalid"}
+          _ ->
+            [{v1, _}, {v2, _}] = [matches["dist"] |> Float.parse, matches["dur"] |> Float.parse]
+            [v1, v2]
+        end
+      {:error, problemo} ->
+        IO.inspect problemo, label: "problemo =("
+        [problemo, problemo]
     end
+
+    #IO.inspect response, label: "Response"
+#
+    #matches = Regex.named_captures(~r/travelD\D+(?<dist>\d+.\d+)\D+(?<dur>\d+.\d+)/, response.body)
+#
+    #case matches do
+    #  nil ->
+    #    {:error, "Destination is invalid"}
+    #  _ ->
+    #    [{v1, _}, {v2, _}] = [matches["dist"] |> Float.parse, matches["dur"] |> Float.parse]
+    #    [v1, v2]
+    #end
 
  end
 

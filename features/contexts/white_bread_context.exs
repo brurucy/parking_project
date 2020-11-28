@@ -61,9 +61,9 @@ defmodule WhiteBreadContext do
 
   and_ ~r/^I am on the App$/, fn state ->
     navigate_to "/"
-    :timer.sleep(250)
+    :timer.sleep(750)
     assert visible_in_page? ~r/Welcome #{state[:email]}/
-    :timer.sleep(250)
+    :timer.sleep(750)
     {:ok, state}
   end
 
