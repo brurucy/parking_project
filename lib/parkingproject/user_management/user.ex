@@ -9,10 +9,15 @@ defmodule ParkingProject.UserManagement.User do
     field :license_plate, :string
     field :name, :string
     has_many :bookings, ParkingProject.ParkingSpace.Booking
+    has_one :wallet, Parkingproject.PaymentManagement.Wallet
 
     timestamps()
   end
 
+  @spec changeset(
+          {map, map} | %{:__struct__ => atom | %{__changeset__: map}, optional(atom) => any},
+          :invalid | %{optional(:__struct__) => none, optional(atom | binary) => any}
+        ) :: Ecto.Changeset.t()
   @doc false
   def changeset(user, attrs \\ %{}) do
     user
