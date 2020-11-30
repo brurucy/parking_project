@@ -4,31 +4,62 @@
   <meta charset="utf-8"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Parking Project · Phoenix Framework</title>
+  <title>Parking Project</title>
   <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+
+  <style type="text/css">
+
+        .table-default td,
+        .table-default th {
+          border-bottom: 0px;
+          padding: 0px;
+        }
+
+  </style>
+
 </head>
 <body>
 <header>
   <section class="container">
-    <nav role="navigation">
-      <ol class="breadcrumb pull-right">
-        <%= if ParkingProject.Authentication.load_current_user(@conn) do %>
-        <li>Konnichiwa ^_^</li>
-        <li id="logout_button"><%= link "Log Out", to: Routes.session_path(@conn, :delete, ParkingProject.Authentication.load_current_user(@conn)), method: "delete" %></li>
-        <li id="park"><%= link "Park", to: Routes.booking_path(@conn, :new), method: "get" %></li>
-        <li id="my_parking_button"><%= link "My parkings", to: Routes.booking_path(@conn, :index), method: "get"%></li>
-        <% else %>
-        <li id="sign_up_button"><%= link "SIGN UP", to: Routes.user_path(@conn, :new), method: "get" %></li>
-        <li id="sign_in_button"><%= link "Sign in", to: Routes.session_path(@conn, :new), method: "get" %></li>
-        <% end %>
-      </ol>
-      <span class="logo"></span>
 
-    </nav>
-    <a href="https://phoenixframework.org/" class="phx-logo">
-      <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
-    </a>
+    <table border="0" Cellpadding="0" Cellspacing="0" class="table-default"
+        style="width: 100%; margin: 0px;">
+      <tr>
+        <td>
+            <h3 style="color: #4b8cd6">Tartu Parking System</h3>
+        </td>
+        <td style="width: 130px;">
+            <nav role="navigation">
+              <ol class="breadcrumb pull-right">
+                <%= if ParkingProject.Authentication.load_current_user(@conn) do %>
+                  <li>Konnichiwa ^_^</li>
+                  <li id="logout_button"><%= link "Log Out", to: Routes.session_path(@conn, :delete, ParkingProject.Authentication.load_current_user(@conn)), method: "delete" %></li>
+                <% else %>
+                  <li id="sign_in_button"><%= link "Sign in", to: Routes.session_path(@conn, :new), method: "get" %></li>
+                  <li id="sign_up_button"><%= link "Sign up", to: Routes.user_path(@conn, :new), method: "get" %></li>
+                <% end %>
+              </ol>
+              <span class="logo"></span>
+            </nav>
+        </td>
+      </tr>
+      <tr>
+        <td>
+
+            <%= if ParkingProject.Authentication.load_current_user(@conn) do %>
+              <div style="display: inline-block; float: left;">
+                <div id="my_wallet_button" style="display: inline-block; padding-right: 15px;"><%= link "My wallet", to: Routes.wallet_path(@conn, :index), method: "get"%></div>
+                <div id="my_parking_button" style="display: inline-block; padding-right: 15px;"><%= link "My parkings", to: Routes.booking_path(@conn, :index), method: "get"%></div>
+                <div id="park" style="display: inline-block; padding-right: 15px;"><%= link "Find Me a Parking", to: Routes.booking_path(@conn, :new), method: "get" %></div>
+              </div>
+            <% end %>
+
+        </td>
+        <td></td>
+      </tr>
+    </table>
+
   </section>
 </header>
 <main role="main" class="container">
