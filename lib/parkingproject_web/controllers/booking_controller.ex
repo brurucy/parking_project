@@ -85,12 +85,9 @@ defmodule ParkingProjectWeb.BookingController do
 
     end
 
-    #IO.inspect spot_to_distance, label: "merlin what is this^2?"
-
     # if destination is invalid
     case Map.has_key?(spot_to_distance, "error") do
       true ->
-        IO.puts "yes there was an error"
         conn
         |> put_flash(:error, spot_to_distance["error"])
         # |> render("new.html", changeset: Booking.changeset(%Booking{}, %{}))
