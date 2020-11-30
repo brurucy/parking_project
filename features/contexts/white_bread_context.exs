@@ -20,25 +20,6 @@ defmodule WhiteBreadContext do
     #Hound.end_session
   end
 
-  #given_ ~r/^that I am logged in$/, fn state ->
-  #  navigate_to "/"
-  #  button_element = find_element(:id, "sign_in_button")
-  #  :timer.sleep(100)
-  #  click button_element
-  #  :timer.sleep(500)
-  #  email_field = find_element(:id, "email")
-  #  input_into_field(email_field, "bruno98@ut.ee")
-  #  :timer.sleep(500)
-  #  password_field = find_element(:id, "password")
-  #  input_into_field(password_field, "parool")
-  #  :timer.sleep(250)
-  #  button_element = find_element(:id, "Submit")
-  #  :timer.sleep(500)
-  #  click button_element
-  #  :timer.sleep(500)
-  #  {:ok, state}
-  #end
-
   given_ ~r/^that I am logged in with the following credentials "(?<email>[^"]+)" and password "(?<password>[^"]+)"$/,
     fn state, %{email: email, password: password} ->
       navigate_to "/"
@@ -56,7 +37,7 @@ defmodule WhiteBreadContext do
       :timer.sleep(500)
       click button_element
       :timer.sleep(500)
-      IO.inspect email, label: "e_post_one"
+      #IO.inspect email, label: "e_post_one"
       #IO.inspect state |> Map.put(:email, email), label: "Statehood"
       {:ok, state}
   end
@@ -127,8 +108,11 @@ defmodule WhiteBreadContext do
   end
 
   then_ ~r/^I click to log-out$/, fn state ->
+    :timer.sleep(500)
     log_out_button_element = find_element(:id, "logout_button")
+    :timer.sleep(500)
     click log_out_button_element
+    :timer.sleep(500)
     {:ok, state}
   end
 
