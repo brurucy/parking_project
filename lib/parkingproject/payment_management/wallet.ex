@@ -5,6 +5,7 @@ defmodule Parkingproject.PaymentManagement.Wallet do
   schema "wallets" do
     field :amount, :float
     belongs_to :user, ParkingProject.UserManagement.User
+    has_many :invoices, Parkingproject.PaymentManagement.Invoice
 
     timestamps()
   end

@@ -10,6 +10,8 @@ defmodule ParkingProject.ParkingSpace.Booking do
     #field :enddate, :datetime
     field :distance, :float
     belongs_to :user, ParkingProject.UserManagement.User
+    has_one :invoice, Parkingproject.PaymentManagement.Invoice
+
     timestamps()
   end
 
