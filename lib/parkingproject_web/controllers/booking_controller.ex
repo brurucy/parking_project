@@ -48,7 +48,7 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   def spot_to_distance_func(x, acc, destination) do
-    case Geolocation.distance(destination, x.spot) do 
+    case Geolocation.distance(destination, x.spot) do
       {:error, "Destination is invalid"} ->
         Map.put(acc, "error", "Destination is invalid")
       _ ->
@@ -63,7 +63,7 @@ defmodule ParkingProjectWeb.BookingController do
     booking_struct = Enum.map(booking_params, fn({key, value}) -> {String.to_atom(key), value} end)
                      |> Enum.into(%{})
 
-    
+
     booking_struct = Map.delete(booking_struct, :user)
 
     booking_changeset = %Booking{}
@@ -75,14 +75,14 @@ defmodule ParkingProjectWeb.BookingController do
     query = from p in Parking, select: p
     all_spots = Repo.all(query)
 
-    
+
     ## key = parking.spot, value = distance from destination
     spot_to_distance = %{}
 
     spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
 
       spot_to_distance_func(x, acc, booking_params["destination"])
-      
+
     end
 
     #IO.inspect spot_to_distance, label: "merlin what is this^2?"
@@ -93,61 +93,63 @@ defmodule ParkingProjectWeb.BookingController do
         IO.puts "yes there was an error"
         conn
         |> put_flash(:error, spot_to_distance["error"])
-        |> render("new.html", changeset: Booking.changeset(%Booking{}, %{}))
+        # |> render("new.html", changeset: Booking.changeset(%Booking{}, %{}))
+        |> redirect(to: Routes.booking_path(conn, :new))
+
       false ->
-    end
+        #IO.puts "test1"
+        case Repo.insert(booking_changeset) do
+          {:ok, booking_insertion} ->
+        #   IO.puts "test2"
 
-    #IO.puts "test1"
-    case Repo.insert(booking_changeset) do
-      {:ok, booking_insertion} ->
-     #   IO.puts "test2"
-      
-        ## key = parking.spot, value = parking object
-        name_to_spot = %{}
+            ## key = parking.spot, value = parking object
+            name_to_spot = %{}
 
-        name_to_spot = Enum.reduce all_spots, %{}, fn x, acc ->
-          Map.put(acc, x.spot, x) 
-        end
-     
+            name_to_spot = Enum.reduce all_spots, %{}, fn x, acc ->
+              Map.put(acc, x.spot, x)
+            end
 
-        ## get the closest one
-        closest_parking_place_name = spot_to_distance
-        |> Enum.min_by(fn {_k, v} -> v end)
-        |> elem(0)
 
-        #IO.inspect closest_parking_place_name, label: "closest parking place"
-        closest_parking_place = name_to_spot[closest_parking_place_name]
+            ## get the closest one
+            closest_parking_place_name = spot_to_distance
+            |> Enum.min_by(fn {_k, v} -> v end)
+            |> elem(0)
 
-        query = from a in Allocation, 
-          join: p in Parking,
-          on: a.parking_id == p.id,
-          where: p.spot == ^closest_parking_place.spot,
-          group_by: p.id,
-          select: {count(a), p.id}
+            #IO.inspect closest_parking_place_name, label: "closest parking place"
+            closest_parking_place = name_to_spot[closest_parking_place_name]
 
-        ## if allocation query is nil,  closest_parking_space_occupied_spots is 0. Else it is the nr of occupied spots
-        closest_parking_space_occupied_spots = case_func(query)
+            query = from a in Allocation,
+              join: p in Parking,
+              on: a.parking_id == p.id,
+              where: p.spot == ^closest_parking_place.spot,
+              group_by: p.id,
+              select: {count(a), p.id}
 
-        case closest_parking_space_occupied_spots < closest_parking_place.places do
-          true ->
-            distance = spot_to_distance[closest_parking_place.spot]
+            ## if allocation query is nil,  closest_parking_space_occupied_spots is 0. Else it is the nr of occupied spots
+            closest_parking_space_occupied_spots = case_func(query)
 
-            Multi.new
-            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, closest_parking_place.id))
-            |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open") |> Changeset.put_change(:distance, distance))
-            |> Repo.transaction
+            case closest_parking_space_occupied_spots < closest_parking_place.places do
+              true ->
+                distance = spot_to_distance[closest_parking_place.spot]
 
+                Multi.new
+                |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, closest_parking_place.id))
+                |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open") |> Changeset.put_change(:distance, distance))
+                |> Repo.transaction
+
+                conn
+                |> put_flash(:info, "Parking confirmed #{closest_parking_place.spot}")
+                |> redirect(to: Routes.booking_path(conn, :index))
+              _ ->
+            end
+
+          {:error, changeset} ->
             conn
-            |> put_flash(:info, "Parking confirmed #{closest_parking_place.spot}")
-            |> redirect(to: Routes.booking_path(conn, :index))
-          _ ->
-        end
+            |> flashTheChangeset(changeset)
+            |> render("new.html", changeset: changeset)
+          end
 
-      {:error, changeset} ->
-        conn
-        |> flashTheChangeset(changeset)
-        |> render("new.html", changeset: changeset)
-      end
+    end
 
   end
 
