@@ -11,7 +11,7 @@ defmodule Parkingproject.PaymentManagement.Invoice do
   end
 
   @doc false
-  def changeset(invoice, attrs) do
+  def changeset(invoice, attrs \\ %{}) do
     invoice
     |> cast(attrs, [:amount])
     |> validate_required([:amount])

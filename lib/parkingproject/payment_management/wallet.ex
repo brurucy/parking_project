@@ -15,5 +15,7 @@ defmodule Parkingproject.PaymentManagement.Wallet do
     wallet
     |> cast(attrs, [:amount])
     |> validate_required([:amount])
+    |> validate_number(:amount, greater_than: 0, message: "The amount should be greater than 0")
+
   end
 end
