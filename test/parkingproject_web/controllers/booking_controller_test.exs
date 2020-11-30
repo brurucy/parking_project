@@ -21,7 +21,11 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: 50.0]}
   #  :timer.sleep(2500)
     conn = get conn, redirected_to(conn)
-    assert html_response(conn, 200) =~ ~r/Parking confirmed1/
+    assert html_response(conn, 200) =~ ~r/Jakobi, Tartu/
+    assert html_response(conn, 200) =~ ~r/Raatuse 23/
+    assert html_response(conn, 200) =~ ~r/50.0/
+    assert html_response(conn, 200) =~ ~r/1.773/
+    assert html_response(conn, 200) =~ ~r/A/
   end
 
   test "closest location", %{conn: conn} do
