@@ -48,11 +48,12 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   def spot_to_distance_func(x, acc, destination) do
-    case Geolocation.distance(destination, x.spot) do
+    distance = Geolocation.distance(destination, x.spot)
+    case distance do
       {:error, "Destination is invalid"} ->
         Map.put(acc, "error", "Destination is invalid")
       _ ->
-        Map.put(acc, x.spot, List.first(Geolocation.distance(destination, x.spot)))
+        Map.put(acc, x.spot, List.first(distance))
     end
   end
 
