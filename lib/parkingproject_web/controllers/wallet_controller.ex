@@ -94,7 +94,9 @@ defmodule ParkingProjectWeb.WalletController do
 
         end
 
-        redirect(conn, to: Routes.wallet_path(conn, :index))
+        conn
+        |> put_flash(:info, "Your amount successfully added")
+        |> redirect(to: Routes.wallet_path(conn, :index))
 
       end
 

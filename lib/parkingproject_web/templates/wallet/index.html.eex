@@ -1,4 +1,4 @@
-<h2>Wallet</h2>
+<h2>Wallet index!</h2>
 
 Your current balance is: <%= @data.balance %>
 
@@ -13,7 +13,7 @@ Your current balance is: <%= @data.balance %>
 
 <%= number_input wallet, :amount, step: "0.01", id: "amount", class: "form-control" %>
 
-<%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
+<%= submit "Submit", id: "button_Submit", class: "btn btn-primary" %>
 
 <% end %>
 
