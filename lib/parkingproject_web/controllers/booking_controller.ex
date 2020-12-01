@@ -142,7 +142,7 @@ defmodule ParkingProjectWeb.BookingController do
 
           {:error, changeset} ->
             conn
-            |> flashTheChangeset(changeset)
+            |> flashTheChangeset(changeset, "Duration")
             |> render("new.html", changeset: changeset)
           end
 
@@ -150,7 +150,7 @@ defmodule ParkingProjectWeb.BookingController do
 
   end
 
-  defp flashTheChangeset(conn, changeset) do
+  defp flashTheChangeset(conn, changeset, noun) do
     #IO.puts "HMMMMM4"
     errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Enum.reduce(opts, msg, fn {key, value}, acc ->
@@ -164,7 +164,7 @@ defmodule ParkingProjectWeb.BookingController do
       |> Enum.join("\n")
 
     conn
-    |> put_flash(:error, error_msg)
+    |> put_flash(:error, noun <> " " <> error_msg)
   end
 
 end

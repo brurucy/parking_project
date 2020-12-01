@@ -18,6 +18,7 @@ defmodule ParkingProject.ParkingSpace.Booking do
     booking
     |> cast(attrs, [:destination, :duration, :distance])
     |> validate_required([:destination, :duration])
+    |> validate_number(:duration, greater_than: 0)
     #|> calculate_fee
   end
 

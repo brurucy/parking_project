@@ -4,7 +4,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
   alias ParkingProject.{Repo, ParkingSpace.Booking, UserManagement.User}
   alias Ecto.{Changeset}
 
-  test "search parking place", %{conn: conn} do
+  test "book a parking place", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
@@ -47,6 +47,26 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     #:timer.sleep(3000)
     conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Destination is invalid/
+  end
+
+  test "invalid duration (negative number)", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "cdsbchjbdjf", duration: -50.0]}
+    #:timer.sleep(3000)
+    conn = get conn, redirected_to(conn)
+    assert html_response(conn, 200) =~ ~r/Duration must be greater than 0/
+  end
+
+  test "invalid duration (string instead of number)", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "cdsbchjbdjf", duration: -50.0]}
+    #:timer.sleep(3000)
+    conn = get conn, redirected_to(conn)
+    assert html_response(conn, 200) =~ ~r/Duration is invalid/
   end
 
   test "display parking place details", %{conn: conn} do
