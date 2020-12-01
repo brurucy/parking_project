@@ -54,8 +54,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
     conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: -50.0]}
-    :timer.sleep(3000)
-    #conn = get conn, redirected_to(conn)
+    #:timer.sleep(3000)
     assert html_response(conn, 200) =~ ~r/Duration must be greater than 0/
   end
 
@@ -64,8 +63,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
     conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: "csjblhebl"]}
-    :timer.sleep(3000)
-    #conn = get conn, redirected_to(conn)
+    #:timer.sleep(3000)
     assert html_response(conn, 200) =~ ~r/Duration is invalid/
   end
 
