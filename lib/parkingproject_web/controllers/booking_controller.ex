@@ -12,7 +12,6 @@ defmodule ParkingProjectWeb.BookingController do
   #ParkingProject.Repo.all(Ecto.Query.from a in ParkingProject.ParkingSpace.Allocation, join: p in ParkingProject.ParkingSpace.Parking, on: a.parking_id == p.id, join: b in ParkingProject.ParkingSpace.Booking, on: a.booking_id == b.id, where: a.booking_id == 13, select: {p.spot, b.destination, b.duration})
 
   def index(conn, _params) do
-    IO.puts "HMMMMM2"
     user = ParkingProject.Authentication.load_current_user(conn)
     booking_query = from b in Booking,
                     where: b.user_id == ^user.id
