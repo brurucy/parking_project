@@ -5,8 +5,8 @@ Feature: Interactive search of parking space
   to find a parking place
   near me
 
-
   Scenario: Searching for a parking space
+    #Given that I have the following credentials "bruno98@ut.ee" and password "parool"
     Given that I am logged in with the following credentials "bruno98@ut.ee" and password "parool"
     And I am on the App
     Then I click on the "park" button
@@ -22,6 +22,7 @@ Feature: Interactive search of parking space
     Then I click to log-out
 
   Scenario: Checking my parking info
+    #Given that I have the following credentials "bruno98@ut.ee" and password "parool"
     Given that I am logged in with the following credentials "bruno98@ut.ee" and password "parool"
     And I am on the App
     Then I click on "my parkings" button

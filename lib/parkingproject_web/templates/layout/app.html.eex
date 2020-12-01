@@ -7,15 +7,12 @@
   <title>Parking Project</title>
   <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
-
   <style type="text/css">
-
         .table-default td,
         .table-default th {
           border-bottom: 0px;
           padding: 0px;
         }
-
   </style>
 
 </head>
@@ -46,14 +43,12 @@
       </tr>
       <tr>
         <td>
-
             <%= if ParkingProject.Authentication.load_current_user(@conn) do %>
               <div style="display: inline-block; float: left;">
                 <div id="my_parking_button" style="display: inline-block; padding-right: 15px;"><%= link "My parkings", to: Routes.booking_path(@conn, :index), method: "get"%></div>
                 <div id="park" style="display: inline-block; padding-right: 15px;"><%= link "Find Me a Parking", to: Routes.booking_path(@conn, :new), method: "get" %></div>
               </div>
             <% end %>
-
         </td>
         <td></td>
       </tr>
