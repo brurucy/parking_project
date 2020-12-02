@@ -47,6 +47,7 @@
               <div style="display: inline-block; float: left;">
                 <div id="my_parking_button" style="display: inline-block; padding-right: 15px;"><%= link "My parkings", to: Routes.booking_path(@conn, :index), method: "get"%></div>
                 <div id="park" style="display: inline-block; padding-right: 15px;"><%= link "Find Me a Parking", to: Routes.booking_path(@conn, :new), method: "get" %></div>
+                <div id="parking" style="display: inline-block; padding-right: 15px;"><%= link "Show parking spots", to: Routes.parking_path(@conn, :new), method: "get" %></div>
               </div>
             <% end %>
         </td>

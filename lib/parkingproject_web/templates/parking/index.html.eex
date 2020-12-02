@@ -1,0 +1,26 @@
+<h2>Listing parkings</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Spot :3
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Distance
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    <%= for parking <- @parkings do %>
+        <tr>
+            <td><%= elem parking, 0 %></td>
+            <td><%= elem parking, 1 %></td>
+            <td><%= elem parking, 2 %></td>
+        </tr>
+    <% end %>
+    </tbody>
+</table>
