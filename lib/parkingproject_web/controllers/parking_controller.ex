@@ -60,7 +60,7 @@ defmodule ParkingProjectWeb.ParkingController do
 
       def add_distance(parking, destination) do
         # parking is a map
-        IO.inspect Map.put(parking, "distance", List.first(Geolocation.distance(destination, parking.spot))), label: "Add distance"
-        Map.put(parking, "distance", List.first(Geolocation.distance(destination, parking.spot)))
+        IO.inspect Map.put(parking, :distance, List.first(Geolocation.distance(destination, parking.spot))), label: "Add distance"
+        Map.put(parking, :distance, List.first(Geolocation.distance(destination, parking.spot)))
       end
 end  
