@@ -6,8 +6,8 @@ defmodule ParkingProject.ParkingSpace.Booking do
     field :destination, :string
     field :status, :string
     field :duration, :float
-    #field :startdate, :datetime
-    #field :enddate, :datetime
+    field :startdate, :utc_datetime
+    field :enddate, :utc_datetime
     field :distance, :float
     belongs_to :user, ParkingProject.UserManagement.User
     timestamps()

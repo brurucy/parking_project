@@ -31,6 +31,9 @@ defmodule ParkingProjectWeb.Router do
     pipe_through [:browser, :browser_auth]
     get "/", PageController, :index
     resources "/bookings", BookingController
+    post "/bookings/fast_sert", BookingController, :fast_sert
+    resources "/parkings", ParkingController
+    post "/parkings/search", ParkingController, :search
   end
 
   if Mix.env() in [:dev, :test] do
