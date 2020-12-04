@@ -1,10 +1,18 @@
 defmodule ParkingProjectWeb.ParkingFeeFunctions do
 
+  import Ecto.Query, only: [from: 2]
+
+  alias ParkingProject.ParkingSpace.Zone
+  alias ParkingProject.Repo
+
   def getZoneFeeAmount(zone, isPerHour) do
 
-    feeStructure = %ParkingProjectWeb.ParkingFee{}
-    selectedZone = if zone == "A", do: feeStructure."ZoneA", else: feeStructure."ZoneB"
-    if isPerHour, do: selectedZone."AmountPerHour", else: selectedZone."AmountPer5mins"
+    query_zones = from i in Zone,
+                  where: i.name == ^zone,
+                  select: i
+
+    zone = Repo.one!(query_zones)
+    if isPerHour, do: zone.pricePerHour, else: zone.pricePer5mins
 
   end
 
