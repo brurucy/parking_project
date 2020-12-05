@@ -44,14 +44,14 @@
     <body>
     <%= for spot <- @data.spots do %>
     <tr>
-        <td><%= elem(elem(spot, 1), 0) %></td>
-        <td><%= Atom.to_string(elem spot, 0) %></td>
+        <td><%= spot.id %></td>
+        <td><%= spot.spot %></td>
         <td>Fee cat</td>
-        <td><%= elem((elem spot, 1), 1)[:distance] %></td>
+        <td><%= spot.distance %></td>
         <td>Price</td>
-        <td><%= elem((elem spot, 1), 1)[:duration] %></td>
+        <td><%= spot.duration %></td>
         <td>
-            <%= button("Book #{elem(spot, 0)}", to: Routes.booking_path(@conn, :create)) %>
+            <%= button("Book #{spot.spot}", to: Routes.booking_path(@conn, :create, search: spot)) %>
         </td>
     </tr>
     <% end %>

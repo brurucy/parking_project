@@ -11,7 +11,7 @@ defmodule ParkingProjectWeb.ParkingController do
 
   def index(conn, _params) do
 
-    render conn, "index.html", data: %{distance: nil, spots: [], changeset: nil}
+    render conn, "index.html", data: %{distance: nil, spots: %{}, changeset: nil}
   end
 
   def display(conn, spots) do
@@ -27,14 +27,11 @@ defmodule ParkingProjectWeb.ParkingController do
     all_spots = Repo.all(query)
     destination = params["destination"]
 
-    name_to_spot = all_spots
-                   |> Enum.map(fn parking -> {String.to_atom(parking.spot), parking} end)
+    name_to_spot = all_spots |> Enum.map(fn parking -> {String.to_atom(parking.spot), parking} end)
 
-    spots_ids = all_spots
-                |> Enum.map(fn spot -> spot.id end)
+    spots_ids = all_spots |> Enum.map(fn spot -> spot.id end)
 
-    spot_names = name_to_spot
-                 |> Enum.map(fn {k, v} -> k end)
+    spot_names = name_to_spot |> Enum.map(fn {k, v} -> k end)
 
     case BetterGeolocation.get_coords(destination) do
       {:ok, origin_coords} ->
@@ -42,25 +39,18 @@ defmodule ParkingProjectWeb.ParkingController do
                          |> Enum.map(fn spot -> Atom.to_string(spot) end)
                          |> Enum.map(fn spot -> BetterGeolocation.get_distance_with_origin_coords(origin_coords, spot) end)
                          |> Enum.map(fn {k, v} -> v end)
-
-        id_to_distance = spots_ids
-                         |> Enum.zip(spot_distances)
-                         |> Map.new()
-                         |> Enum.sort_by(fn {k, v} -> v.distance end)
-
-        spot_to_distance = spot_names
-                           |> Enum.zip(spot_distances)
-                           |> Map.new()
-                           |> Enum.sort_by(fn {k, v} -> v.distance end)
-
-        spot_sorted = spot_to_distance
-                      |> Enum.map(fn {k, v} -> k end)
-                      |> Enum.zip(id_to_distance)
+                         |> Enum.zip(spots_ids)
+                         |> Enum.map(fn {k, v} -> Map.put_new(k, :id, v) end)
+                         |> Enum.zip(spot_names |> Enum.map(fn spot_name -> Atom.to_string(spot_name) end))
+                         |> Enum.map(fn {k, v} -> Map.put_new(k, :spot, v) end)
+                         |> Enum.sort_by(fn k -> k.distance end)
+                         |> Enum.map(fn k -> Map.update!(k, :distance, fn dist -> round(dist) end) end)
+                         |> Enum.map(fn k -> Map.update!(k, :duration, fn dur -> round(dur) end) end)
+                         |> Enum.map(fn k -> Map.put_new(k, :destination, destination) end)
 
         render conn, "index.html", data: %{
           changeset: Booking.changeset(%Booking{}, %{}),
-          spots: spot_sorted,
-          ids: id_to_distance
+          spots: spot_distances
         }
 
       {:error, _} ->
