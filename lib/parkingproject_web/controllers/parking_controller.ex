@@ -23,17 +23,38 @@ defmodule ParkingProjectWeb.ParkingController do
   def search(conn, params) do
     IO.inspect params, label: "search params"
 
-    IO.inspect params["startdate"], label: "startdate"
+    case Ecto.Type.cast(:utc_datetime, params["startdate"]) do
+      {:error, _} -> 
+        conn
+        |> put_flash(:error, "Please provide both a start time")
+        |> redirect(to: Routes.parking_path(conn, :index))
+
+      {:ok, nil} ->
+        conn
+        |> put_flash(:error, "Please provide both a start time")
+        |> redirect(to: Routes.parking_path(conn, :index))
+
+      _ ->
+      end
+
+    case Ecto.Type.cast(:utc_datetime, params["enddate"]) do
+      {:error, _} -> 
+        conn
+        |> put_flash(:error, "Please provide an end time")
+        |> redirect(to: Routes.parking_path(conn, :index))
+
+      {:ok, nil} ->
+        conn
+        |> put_flash(:error, "Please provide a start time")
+        |> redirect(to: Routes.parking_path(conn, :index))
+        
+      _ ->
+    end
+    
+
     {:ok, startdate} = Ecto.Type.cast(:utc_datetime, params["startdate"])
     {:ok, enddate} = Ecto.Type.cast(:utc_datetime, params["enddate"])
 
-    case startdate == nil or enddate == nil do
-      true ->
-        conn
-        |> put_flash(:error, "Please provide both a start and an end time")
-        |> redirect(to: Routes.parking_path(conn, :index))
-      false ->
-    end
 
     IO.inspect DateTime.diff(enddate, startdate), label: "Diff"
 
