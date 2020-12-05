@@ -51,7 +51,7 @@
         <td>Price</td>
         <td><%= spot.time %></td>
         <td>
-            <%= button("Book #{spot.spot}", to: Routes.booking_path(@conn, :create, id: spot.id, spot: spot.spot)) %>
+            <%= button("Book #{spot.spot}", to: Routes.booking_path(@conn, :create, search: %{id: spot.id, spot: spot.spot, parking_time: spot.parking_time})) %>
         </td>
     </tr>
     <% end %>

@@ -21,6 +21,44 @@ defmodule ParkingProjectWeb.ParkingController do
   end
 
   def search(conn, params) do
+    IO.inspect params, label: "search params"
+
+    IO.inspect params["startdate"], label: "startdate"
+    {:ok, startdate} = Ecto.Type.cast(:utc_datetime, params["startdate"])
+    {:ok, enddate} = Ecto.Type.cast(:utc_datetime, params["enddate"])
+
+    case startdate == nil or enddate == nil do
+      true ->
+        conn
+        |> put_flash(:error, "Please provide both a start and an end time")
+        |> redirect(to: Routes.parking_path(conn, :index))
+      false ->
+    end
+
+    IO.inspect DateTime.diff(enddate, startdate), label: "Diff"
+
+    parking_time = DateTime.diff(enddate, startdate) ## in minutes
+
+    {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
+    IO.inspect now, label: "now"
+
+    case DateTime.diff(startdate, now) < 0 do
+      true ->
+        
+        conn
+        |> put_flash(:error, "Start date cannot be in the past")
+        |> redirect(to: Routes.parking_path(conn, :index))
+      false ->
+      end
+
+
+    case parking_time < 1 do
+      true ->   
+        conn
+        |> put_flash(:error, "Minimum duration is 1 min")
+        |> redirect(to: Routes.parking_path(conn, :index))
+      false ->
+    end
 
     query = from p in Parking, select: p
 
@@ -60,10 +98,10 @@ defmodule ParkingProjectWeb.ParkingController do
                       #|> Enum.zip(id_to_distance)
 
         available_parkings_with_distance = Enum.reduce all_spots, [], fn parking, all_spots ->
-          add_with_availability_check(all_spots, parking, destination)
+          add_with_availability_check(all_spots, parking, destination, parking_time)
       end
-        IO.inspect all_spots, label: "all_spots"
-        IO.inspect available_parkings_with_distance, label: "available_parkings_with_distance"
+        #IO.inspect all_spots, label: "all_spots"
+        #IO.inspect available_parkings_with_distance, label: "available_parkings_with_distance"
         render conn, "index.html", data: %{
           spots: available_parkings_with_distance
         }
@@ -77,15 +115,15 @@ defmodule ParkingProjectWeb.ParkingController do
 
   end
 
-  def add_with_availability_check(parkings, parking, destination) do
+  def add_with_availability_check(parkings, parking, destination, parking_time) do
     ## parkings is a list
 
     allocated_spots = number_of_allocated_spots(parking.id)
-    IO.inspect parkings, label: "parkings"
-    IO.inspect parking, label: "one parking"
-    IO.inspect allocated_spots, label: "allocated spots"
+    #IO.inspect parkings, label: "parkings"
+    #IO.inspect parking, label: "one parking"
+    #IO.inspect allocated_spots, label: "allocated spots"
     case allocated_spots < parking.places do
-      true -> [add_distance(parking, destination) | parkings]
+      true -> [add_distance(parking, destination, parking_time) | parkings]
       false -> parkings
     end
   end
@@ -102,11 +140,12 @@ defmodule ParkingProjectWeb.ParkingController do
     end
   end
 
-  def add_distance(parking, destination) do
+  def add_distance(parking, destination, parking_time) do
     # parking is a map
     {:ok, res} = BetterGeolocation.get_distance(destination, parking.spot)
     parking 
     |> Map.put(:distance, res.distance)
     |> Map.put(:time, res.duration)
+    |> Map.put(:parking_time, parking_time)
   end
 end  
