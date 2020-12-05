@@ -23,29 +23,45 @@ defmodule ParkingProjectWeb.ParkingController do
   def search(conn, params) do
     IO.inspect params, label: "search params"
 
+    case params["destination"] do
+      "" ->
+        conn
+        |> put_flash(:error, "Destination cannot be nil")
+        |> redirect(to: Routes.parking_path(conn, :index))
+      _ ->
+    end
+
+    case params["radius"] do
+      "0" ->
+        conn
+        |> put_flash(:error, "Radius cannot be 0 meters")
+        |> redirect(to: Routes.parking_path(conn, :index))
+      _ ->
+    end
+
     case Ecto.Type.cast(:utc_datetime, params["startdate"]) do
       {:error, _} -> 
         conn
-        |> put_flash(:error, "Please provide both a start time")
+        |> put_flash(:error, "Please provide a start date")
         |> redirect(to: Routes.parking_path(conn, :index))
 
       {:ok, nil} ->
         conn
-        |> put_flash(:error, "Please provide both a start time")
+        |> put_flash(:error, "Please provide a start date")
         |> redirect(to: Routes.parking_path(conn, :index))
 
       _ ->
-      end
+    end
 
     case Ecto.Type.cast(:utc_datetime, params["enddate"]) do
       {:error, _} -> 
         conn
-        |> put_flash(:error, "Please provide an end time")
+        |> put_flash(:error, "Please provide an end date")
         |> redirect(to: Routes.parking_path(conn, :index))
 
       {:ok, nil} ->
         conn
-        |> put_flash(:error, "Please provide a start time")
+        |> put_flash(:error, "Please provide an end date")
         |> redirect(to: Routes.parking_path(conn, :index))
         
       _ ->
@@ -56,21 +72,20 @@ defmodule ParkingProjectWeb.ParkingController do
     {:ok, enddate} = Ecto.Type.cast(:utc_datetime, params["enddate"])
 
 
-    IO.inspect DateTime.diff(enddate, startdate), label: "Diff"
+    IO.inspect DateTime.diff(enddate, startdate) / 60, label: "Diff"
 
-    parking_time = DateTime.diff(enddate, startdate) ## in minutes
+    parking_time = DateTime.diff(enddate, startdate) / 60 ## in minutes
 
     {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
     IO.inspect now, label: "now"
 
     case DateTime.diff(startdate, now) < 0 do
       true ->
-        
         conn
         |> put_flash(:error, "Start date cannot be in the past")
         |> redirect(to: Routes.parking_path(conn, :index))
       false ->
-      end
+    end
 
 
     case parking_time < 1 do
@@ -90,6 +105,18 @@ defmodule ParkingProjectWeb.ParkingController do
 
     spots_ids = all_spots |> Enum.map(fn spot -> spot.id end)
 
+    spot_categories = all_spots |> Enum.map(fn spot -> spot.category end)
+
+    IO.inspect spot_categories, label: "Categories spots"
+
+    spot_free_spots = all_spots |> Enum.map(fn spot -> spot.places end)
+
+    IO.inspect spot_free_spots, label: "Free spots"
+
+    spot_taken_spots = spots_ids |> Enum.map(fn spot -> number_of_allocated_spots(spot) end)
+
+    IO.inspect spot_taken_spots, label: "Taken spots"
+
     spot_names = name_to_spot |> Enum.map(fn {k, v} -> k end)
 
     case BetterGeolocation.get_coords(destination) do
@@ -102,10 +129,18 @@ defmodule ParkingProjectWeb.ParkingController do
                          |> Enum.map(fn {k, v} -> Map.put_new(k, :id, v) end)
                          |> Enum.zip(spot_names |> Enum.map(fn spot_name -> Atom.to_string(spot_name) end))
                          |> Enum.map(fn {k, v} -> Map.put_new(k, :spot, v) end)
+                         |> Enum.zip(spot_taken_spots)
+                         |> Enum.map(fn {k, v} -> Map.put_new(k, :taken, v) end)
+                         |> Enum.zip(spot_free_spots)
+                         |> Enum.map(fn {k, v} -> Map.put_new(k, :free, v) end)
+                         |> Enum.zip(spot_categories)
+                         |> Enum.map(fn {k, v} -> Map.put_new(k, :category, v) end)
                          |> Enum.sort_by(fn k -> k.distance end)
                          |> Enum.map(fn k -> Map.update!(k, :distance, fn dist -> round(dist) end) end)
                          |> Enum.map(fn k -> Map.update!(k, :duration, fn dur -> round(dur) end) end)
                          |> Enum.map(fn k -> Map.put_new(k, :destination, destination) end)
+                         |> Enum.map(fn k -> Map.put_new(k, :fee, round(k.duration * parking_time)) end)
+                         |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
 
         render conn, "index.html", data: %{
           changeset: Booking.changeset(%Booking{}, %{}),
@@ -140,10 +175,11 @@ defmodule ParkingProjectWeb.ParkingController do
                  group_by: a.parking_id,
                  select: count(a)
 
-    case Repo.all(query) != nil do
-      true -> length(Repo.all(query))
-      false -> 0
+    case Repo.all(query) do
+      [] -> 0
+      [not_nil] -> not_nil
     end
+
   end
 
   def add_distance(parking, destination, parking_time) do

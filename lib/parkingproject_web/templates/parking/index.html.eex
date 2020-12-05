@@ -5,11 +5,15 @@
     <%= text_input search, :destination, id: "destination", class: "form-control" %>
 </div>
 <div class="form-group">
+    <%= label search, :radius, class: "control-label" %>
+    <%= number_input search, :radius, id: "radius", class: "form-control" %>
+</div>
+<div class="form-group">
     <%= label search, :startdate, class: "control-label" %>
     <%= datetime_select search, :startdate, builder: fn b -> %>
     <%= b.(:minute, prompt: "Minute") %>
     <%= b.(:hour, prompt: "Hour") %>
-    <%= b.(:day, prompt: "Date") %>
+    <%= b.(:day, prompt: "Day") %>
     <%= b.(:month, prompt: "Month") %>
     <%= b.(:year, prompt: "Year") %>
     <% end %>
@@ -19,7 +23,7 @@
     <%= datetime_select search, :enddate, builder: fn b -> %>
     <%= b.(:minute, prompt: "Minute") %>
     <%= b.(:hour, prompt: "Hour") %>
-    <%= b.(:day, prompt: "Date") %>
+    <%= b.(:day, prompt: "Day") %>
     <%= b.(:month, prompt: "Month") %>
     <%= b.(:year, prompt: "Year") %>
     <% end %>
@@ -34,8 +38,9 @@
             <th>Id</th>
             <th>Spot</th>
             <th>Fee Category</th>
+            <th>Availability</th>
             <th>Distance</th>
-            <th>Price</th>
+            <th>Estimated Hourly Fee</th>
             <th>Travel time</th>
             <th></th>
         </tr>
@@ -43,15 +48,16 @@
     <body>
     <%= for spot <- @data.spots do %>
     <tr>
+        <%= if spot.taken != spot.free do%>
         <td><%= spot.id %></td>
         <td><%= spot.spot %></td>
-        <td>Fee cat</td>
+        <td><%= spot.category %></td>
+        <td><%= spot.free - spot.taken %></td>
         <td><%= spot.distance %></td>
-        <td>Price</td>
+        <td><%= spot.fee %></td>
         <td><%= spot.duration %></td>
-        <td>
-            <%= button("Book #{spot.spot}", to: Routes.booking_path(@conn, :create, search: spot)) %>
-        </td>
+        <td><%= button("Book #{spot.spot}", to: Routes.booking_path(@conn, :create, search: spot)) %></td>
+        <% end %>
     </tr>
     <% end %>
     </body>
