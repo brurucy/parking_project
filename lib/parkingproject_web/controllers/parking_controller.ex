@@ -40,29 +40,34 @@ defmodule ParkingProjectWeb.ParkingController do
       {:ok, origin_coords} ->
         spot_distances = spot_names
                          |> Enum.map(fn spot -> Atom.to_string(spot) end)
-                         |> Enum.map(fn spot -> BetterGeolocation.get_distance_with_origin_coords(origin_coords, spot) end)
-                         |> Enum.map(fn {k, v} -> v end)
+                         #|> Enum.map(fn spot -> BetterGeolocation.get_distance_with_origin_coords(origin_coords, spot) end)
+                         #|> Enum.map(fn {k, v} -> v end)
+                         #|> Enum.zip(spots_ids) 
+                         #|> Enum.map(fn {k, v} -> Map.put_new(k, :id, v) end)
 
         id_to_distance = spots_ids
                          |> Enum.zip(spot_distances)
                          |> Map.new()
-                         |> Enum.sort_by(fn {k, v} -> v.distance end)
+                         #|> Enum.sort_by(fn {k, v} -> v.distance end)
 
         spot_to_distance = spot_names
                            |> Enum.zip(spot_distances)
                            |> Map.new()
-                           |> Enum.sort_by(fn {k, v} -> v.distance end)
+                           #|> Enum.sort_by(fn {k, v} -> v.distance end)
 
         spot_sorted = spot_to_distance
-                      |> Enum.map(fn {k, v} -> k end)
-                      |> Enum.zip(id_to_distance)
+                      #|> Enum.map(fn {k, v} -> k end)
+                      #|> Enum.zip(id_to_distance)
 
+        available_parkings_with_distance = Enum.reduce all_spots, [], fn parking, all_spots ->
+          add_with_availability_check(all_spots, parking, destination)
+      end
+        IO.inspect all_spots, label: "all_spots"
+        IO.inspect available_parkings_with_distance, label: "available_parkings_with_distance"
         render conn, "index.html", data: %{
-          changeset: Booking.changeset(%Booking{}, %{}),
-          spots: spot_sorted,
-          ids: id_to_distance
+          spots: available_parkings_with_distance
         }
-
+ 
       {:error, _} ->
         conn
         |> put_flash(:error, "Destination is invalid")
@@ -74,9 +79,13 @@ defmodule ParkingProjectWeb.ParkingController do
 
   def add_with_availability_check(parkings, parking, destination) do
     ## parkings is a list
+
     allocated_spots = number_of_allocated_spots(parking.id)
+    IO.inspect parkings, label: "parkings"
+    IO.inspect parking, label: "one parking"
+    IO.inspect allocated_spots, label: "allocated spots"
     case allocated_spots < parking.places do
-      true -> List.insert_at(parkings, add_distance(parking, destination), 0)
+      true -> [add_distance(parking, destination) | parkings]
       false -> parkings
     end
   end
@@ -87,14 +96,17 @@ defmodule ParkingProjectWeb.ParkingController do
                  group_by: a.parking_id,
                  select: count(a)
 
-    case query do
-      true -> Repo.all(query)
+    case Repo.all(query) != nil do
+      true -> length(Repo.all(query))
       false -> 0
     end
   end
 
   def add_distance(parking, destination) do
     # parking is a map
-    Map.put(parking, "distance", Geolocation.distance(destination, parking.spot))
+    {:ok, res} = BetterGeolocation.get_distance(destination, parking.spot)
+    parking 
+    |> Map.put(:distance, res.distance)
+    |> Map.put(:time, res.duration)
   end
 end  

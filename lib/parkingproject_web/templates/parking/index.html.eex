@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-<h2>Listing parkings</h2>
-=======
 <%= form_for @conn, Routes.parking_path(@conn, :search), fn search -> %>
 <h2>Search for parking spots!</h2>
 <div class="form-group">
@@ -30,35 +27,10 @@
 <div class="form-group">
     <%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
 </div>
-<% end %>
->>>>>>> 1e5484bc672eafff3715b55ffcccb47e4abb2693
 
 <table class="table">
     <thead>
         <tr>
-<<<<<<< HEAD
-            <th>
-                Spot :3
-            </th>
-            <th>
-                Category
-            </th>
-            <th>
-                Distance
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-    <%= for parking <- @parkings do %>
-        <tr>
-        
-            <td><%= parking.spot %></td>
-            <td><%= parking.category %></td>
-            <td><%= parking.distance %></td>
-        </tr>
-    <% end %>
-    </tbody>
-=======
             <th>Id</th>
             <th>Spot</th>
             <th>Fee Category</th>
@@ -70,18 +42,21 @@
     </thead>
     <body>
     <%= for spot <- @data.spots do %>
+   
     <tr>
-        <td><%= elem(elem(spot, 1), 0) %></td>
-        <td><%= Atom.to_string(elem spot, 0) %></td>
-        <td>Fee cat</td>
-        <td><%= elem((elem spot, 1), 1)[:distance] %></td>
+        <td><%= spot.id %></td>
+        <td><%= spot.spot %></td>
+        <td><%= spot.category %></td>
+        <td><%= spot.distance %></td>
         <td>Price</td>
-        <td><%= elem((elem spot, 1), 1)[:duration] %></td>
+        <td><%= spot.time %></td>
         <td>
-            <%= button("Book #{elem(spot, 0)}", to: Routes.booking_path(@conn, :create)) %>
+            <%= button("Book #{spot.spot}", to: Routes.booking_path(@conn, :create, id: spot.id, spot: spot.spot)) %>
         </td>
     </tr>
     <% end %>
     </body>
->>>>>>> 1e5484bc672eafff3715b55ffcccb47e4abb2693
 </table>
+<% end %>
+
+

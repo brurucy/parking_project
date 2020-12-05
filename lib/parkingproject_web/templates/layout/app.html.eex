@@ -47,11 +47,7 @@
               <div style="display: inline-block; float: left;">
                 <div id="my_parking_button" style="display: inline-block; padding-right: 15px;"><%= link "My parkings", to: Routes.booking_path(@conn, :index), method: "get"%></div>
                 <div id="park" style="display: inline-block; padding-right: 15px;"><%= link "Find Me a Parking", to: Routes.booking_path(@conn, :new), method: "get" %></div>
-<<<<<<< HEAD
-                <div id="parking" style="display: inline-block; padding-right: 15px;"><%= link "Show parking spots", to: Routes.parking_path(@conn, :new), method: "get" %></div>
-=======
                 <div id="search_parkings" style="display: inline-block; padding-right: 15px;"><%= link "Search for a parking", to: Routes.parking_path(@conn, :index), method: "get" %></div>
->>>>>>> 1e5484bc672eafff3715b55ffcccb47e4abb2693
               </div>
             <% end %>
         </td>

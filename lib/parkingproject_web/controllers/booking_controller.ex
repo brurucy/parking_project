@@ -42,7 +42,7 @@ defmodule ParkingProjectWeb.BookingController do
     end
   end
 
-  def create(conn, %{"search" => search_params}) do
+  def create(conn, search_params) do
     IO.inspect search_params, label: "search params"
     user = ParkingProject.Authentication.load_current_user(conn)
     booking_changeset = %Booking{}
