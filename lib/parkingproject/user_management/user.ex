@@ -8,6 +8,7 @@ defmodule ParkingProject.UserManagement.User do
     field :password, :string, virtual: true
     field :license_plate, :string
     field :name, :string
+    field :is_hourly, :boolean, default: true
     has_many :bookings, ParkingProject.ParkingSpace.Booking
 
     timestamps()
@@ -16,8 +17,8 @@ defmodule ParkingProject.UserManagement.User do
   @doc false
   def changeset(user, attrs \\ %{}) do
     user
-    |> cast(attrs, [:name, :email, :license_plate, :password])
-    |> validate_required([:name, :email, :license_plate, :password])
+    |> cast(attrs, [:name, :email, :license_plate, :password, :is_hourly])
+    |> validate_required([:name, :email, :license_plate])
     |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
     |> hash_password

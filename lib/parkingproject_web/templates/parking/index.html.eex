@@ -39,9 +39,9 @@
             <th>Spot</th>
             <th>Fee Category</th>
             <th>Availability</th>
-            <th>Distance</th>
-            <th>Estimated Hourly Fee</th>
-            <th>Travel time</th>
+            <th>Distance(metres)</th>
+            <th>Estimated Fee(cents)</th>
+            <th>Travel time(seconds)</th>
             <th></th>
         </tr>
     </thead>

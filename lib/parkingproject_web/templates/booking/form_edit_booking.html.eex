@@ -1,0 +1,22 @@
+<%= form_for @changeset, @action, fn booking -> %>
+<%= if @changeset.action do %>
+<div class="alert alert-danger">
+    <p>Oops, something went wrong! Please check the errors below.</p>
+</div>
+<% end %>
+
+<div class="form-group">
+    <%= label booking, :enddate, class: "control-label" %>
+    <%= datetime_select booking, :enddate, builder: fn b -> %>
+    <%= b.(:minute, prompt: "Minute") %>
+    <%= b.(:hour, prompt: "Hour") %>
+    <%= b.(:day, prompt: "Day") %>
+    <%= b.(:month, prompt: "Month") %>
+    <%= b.(:year, prompt: "Year") %>
+    <% end %>
+</div>
+
+<div class="form-group">
+    <%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
+</div>
+<% end %>

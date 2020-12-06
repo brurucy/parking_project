@@ -24,14 +24,17 @@ defmodule ParkingProjectWeb.Router do
   scope "/", ParkingProjectWeb do
     pipe_through :browser
     resources "/sessions", SessionController, only: [:new, :create, :delete]
-    resources "/users", UserController
   end
 
   scope "/", ParkingProjectWeb do
     pipe_through [:browser, :browser_auth]
     get "/", PageController, :index
+  end
+
+  scope "/", ParkingProjectWeb do
+    pipe_through [:browser, :browser_auth, :ensure_auth]
+    resources "/users", UserController
     resources "/bookings", BookingController
-    #post "/bookings/fast_sert", BookingController, :fast_sert
     resources "/parkings", ParkingController
     post "/parkings/search", ParkingController, :search
   end

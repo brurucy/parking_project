@@ -38,8 +38,10 @@ defmodule ParkingProjectWeb.UserController do
     user = Repo.get!(User, id)
     changeset = User.changeset(user, user_params)
 
+    IO.inspect user_params, label: "Yeehaw"
+
     Repo.update!(changeset)
-    redirect(conn, to: Routes.user_path(conn, :index))
+    redirect(conn, to: Routes.booking_path(conn, :index))
   end
 
   def show(conn, %{"id" => id}) do

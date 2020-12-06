@@ -4,7 +4,7 @@ defmodule ParkingProjectWeb.BookingController do
   import Ecto.Query, only: [from: 2]
 
   alias ParkingProject.Repo
-  alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking}
+  alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking, ParkingFee}
   alias Ecto.{Changeset, Multi}
   alias ParkingProjectWeb.{Geolocation, BetterGeolocation}
 
@@ -24,11 +24,32 @@ defmodule ParkingProjectWeb.BookingController do
                   on: a.parking_id == p.id,
                   join: b in Booking,
                   on: a.booking_id == b.id,
-                  where: a.booking_id in ^(bookings |> Enum.map(fn x -> x.id end)) ,
-                  select: {p.spot, b.destination, b.duration, p.category, b.distance}
+                  join: pf in ParkingFee,
+                  on: p.parking_fee_id == pf.id,
+                  where: a.booking_id in ^(bookings |> Enum.map(fn x -> x.id end)),
+                  select: [map(p, [:spot]), map(b, [:id, :destination, :duration, :distance, :fee, :startdate]), map(pf, [:category])]
     parking_sl = Repo.all(query_pspot)
 
+    IO.inspect parking_sl, label: "check"
+
     render conn, "index.html", bookings: parking_sl
+  end
+
+  def edit(conn, %{"id" => id}) do
+    booking = Repo.get!(Booking, id)
+    changeset = Booking.changeset(booking, %{})
+
+    render(conn, "edit.html", booking: booking, changeset: changeset)
+  end
+
+  def update(conn, %{"id" => id, "booking" => booking_params}) do
+    booking = Repo.get!(Booking, id)
+    changeset = Booking.changeset(booking, booking_params)
+
+    IO.inspect booking_params, label: "Yeehaw"
+
+    Repo.update!(changeset)
+    redirect(conn, to: Routes.booking_path(conn, :index))
   end
 
   def new(conn, _params) do
