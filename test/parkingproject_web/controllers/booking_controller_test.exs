@@ -26,8 +26,6 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => "2021"
       }
     }
-
-    conn = get conn, redirected_to(conn)
     
     assert html_response(conn, 200) =~ ~r/Jakobi 2/
     assert html_response(conn, 200) =~ ~r/Lossi 21/
