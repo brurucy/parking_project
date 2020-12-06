@@ -186,7 +186,7 @@ defmodule ParkingProjectWeb.ParkingController do
             case user.is_hourly do
               true ->
                 spot_distances = spot_distances
-                                 |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * ceil(parking_time / 60)) * 100) end)
+                                 |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * round(parking_time / 60)) * 100) end)
                                  |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
 
                 render conn, "index.html", data: %{
@@ -195,7 +195,7 @@ defmodule ParkingProjectWeb.ParkingController do
                 }
               _ ->
                 spot_distances = spot_distances
-                                 |> Enum.map(fn k -> Map.put_new(k, :fee, ceil(k.ppfm * parking_time / 5)) end)
+                                 |> Enum.map(fn k -> Map.put_new(k, :fee, round(k.ppfm * parking_time / 5)) end)
                                  |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
 
                 render conn, "index.html", data: %{
@@ -261,7 +261,7 @@ defmodule ParkingProjectWeb.ParkingController do
     #    case user.is_hourly do
     #      true ->
     #        spot_distances = spot_distances
-    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * ceil(parking_time / 60)) * 100) end)
+    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * round(parking_time / 60)) * 100) end)
     #                         |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
 #
     #        render conn, "index.html", data: %{
@@ -270,7 +270,7 @@ defmodule ParkingProjectWeb.ParkingController do
     #        }
     #      _ ->
     #        spot_distances = spot_distances
-    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, ceil(k.ppfm * parking_time / 5)) end)
+    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, round(k.ppfm * parking_time / 5)) end)
     #                         |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
 #
     #        render conn, "index.html", data: %{
@@ -384,7 +384,7 @@ defmodule ParkingProjectWeb.ParkingController do
     #    case user.is_hourly do
     #      true ->
     #        spot_distances = spot_distances
-    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * ceil(parking_time / 60)) * 100) end)
+    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * round(parking_time / 60)) * 100) end)
     #                         |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
 #
     #        render conn, "index.html", data: %{
@@ -393,7 +393,7 @@ defmodule ParkingProjectWeb.ParkingController do
     #        }
     #      _ ->
     #        spot_distances = spot_distances
-    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, ceil(k.ppfm * parking_time / 5)) end)
+    #                         |> Enum.map(fn k -> Map.put_new(k, :fee, round(k.ppfm * parking_time / 5)) end)
     #                         |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
 #
     #        render conn, "index.html", data: %{

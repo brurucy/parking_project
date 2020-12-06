@@ -94,14 +94,14 @@ defmodule ParkingProjectWeb.BookingController do
 
                 case user.is_hourly do
                   true ->
-                    parking_fee = (fee_scheme.pph * ceil(parking_time / 60)) * 100
+                    parking_fee = (fee_scheme.pph * round(parking_time / 60)) * 100 ## round needs to be ceil
                     changeset = Booking.changeset(booking, booking_params)
                                 |> Changeset.put_change(:fee, parking_fee)
                     Repo.update!(changeset)
                     redirect(conn, to: Routes.booking_path(conn, :index))
 
                   false ->
-                    parking_fee = ceil(fee_scheme.ppfm * parking_time / 5)
+                    parking_fee = round(fee_scheme.ppfm * parking_time / 5)
                     changeset = Booking.changeset(booking, booking_params)
                                 |> Changeset.put_change(:fee, parking_fee)
                     Repo.update!(changeset)
