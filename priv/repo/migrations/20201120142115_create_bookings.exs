@@ -6,6 +6,7 @@ defmodule Parkingproject.Repo.Migrations.CreateBookings do
       add :status, :string, default: "open"
       add :destination, :string
       add :duration, :float
+      add :user_id, references(:users)
       timestamps()
     end
 
