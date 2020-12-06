@@ -27,9 +27,9 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
       }
     }
     
-    assert html_response(conn, 200) =~ ~r/Jakobi 2/
+    assert html_response(conn, 200) =~ ~r/Vabriku 1/
     assert html_response(conn, 200) =~ ~r/Lossi 21/
-    assert html_response(conn, 200) =~ ~r/^(.(?<!Vabriku 1))*?$/
+    assert html_response(conn, 200) =~ ~r/^(.(?<!Jakobi 2))*?$/
 
   end
   
