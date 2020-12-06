@@ -20,7 +20,7 @@ defmodule ParkingProjectWeb.ParkingController do
 
   end
 
-  def search(conn, params) do
+  def create(conn, params) do
     IO.inspect params, label: "search params"
 
     case params["destination"] do
