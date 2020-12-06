@@ -48,7 +48,7 @@
     <body>
     <%= for spot <- @data.spots do %>
     <tr>
-        <%= if spot.taken != spot.free do%>
+        <%= if spot.taken != spot.free do %>
         <td><%= spot.id %></td>
         <td><%= spot.spot %></td>
         <td><%= spot.category %></td>
