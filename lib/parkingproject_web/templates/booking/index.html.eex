@@ -16,6 +16,9 @@
                 Start date
             </th>
             <th>
+                End date
+            </th>
+            <th>
                 Extend
             </th>
         </tr>
@@ -27,6 +30,7 @@
             <td><%= (Enum.at booking, 1).destination %></td>
             <td><%= (Enum.at booking, 1).fee %></td>
             <td><%= (Enum.at booking, 1).startdate %></td>
+            <td><%= (Enum.at booking, 1).enddate %></td>
             <td>
                 <div id="extend" style="display: inline-block; padding-right: 15px;"><%= link "Extend", to: Routes.booking_path(@conn, :edit, (Enum.at booking, 1).id), method: "get" %></div>
             </td>

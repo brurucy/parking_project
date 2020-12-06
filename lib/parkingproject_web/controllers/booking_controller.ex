@@ -27,7 +27,7 @@ defmodule ParkingProjectWeb.BookingController do
                   join: pf in ParkingFee,
                   on: p.parking_fee_id == pf.id,
                   where: a.booking_id in ^(bookings |> Enum.map(fn x -> x.id end)),
-                  select: [map(p, [:spot]), map(b, [:id, :destination, :duration, :distance, :fee, :startdate]), map(pf, [:category])]
+                  select: [map(p, [:spot]), map(b, [:id, :destination, :duration, :distance, :fee, :startdate, :enddate]), map(pf, [:category])]
     parking_sl = Repo.all(query_pspot)
 
     IO.inspect parking_sl, label: "check"
@@ -43,13 +43,75 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   def update(conn, %{"id" => id, "booking" => booking_params}) do
+    user = ParkingProject.Authentication.load_current_user(conn)
     booking = Repo.get!(Booking, id)
-    changeset = Booking.changeset(booking, booking_params)
 
-    IO.inspect booking_params, label: "Yeehaw"
+    {:ok, now} = DateTime.now("Etc/UTC")
+    IO.inspect now, label: "now"
 
-    Repo.update!(changeset)
-    redirect(conn, to: Routes.booking_path(conn, :index))
+    case Enum.member?(Map.values(booking_params["enddate"]), "") do
+      true ->
+        conn
+        |> put_flash(:error, "no field in end date can be empty")
+        |> redirect(to: Routes.booking_path(conn, :index))
+      _ ->
+    end
+
+    {:ok, enddate} = Ecto.Type.cast(:utc_datetime, booking_params["enddate"])
+
+    case DateTime.diff(enddate, now) < 0 do
+      true ->
+        conn
+        |> put_flash(:error, "Start date cannot be in the past")
+        |> redirect(to: Routes.booking_path(conn, :index))
+      false ->
+    end
+
+    # Look at how messy this is LMAO
+
+    case is_nil(booking.enddate) do
+      false ->
+        case DateTime.diff(enddate, booking.enddate) < 0 do
+          true ->
+            conn
+            |> put_flash(:error, "End date cannot be before current end date")
+            |> redirect(to: Routes.booking_path(conn, :index))
+          false ->
+            parking_time = DateTime.diff(enddate, booking.startdate) / 60
+            case parking_time < 1 do
+              true ->
+                conn
+                |> put_flash(:error, "End date must be later than start date")
+                |> redirect(to: Routes.booking_path(conn, :index))
+              false ->
+                fee_scheme = Repo.one(from a in Allocation,
+                                      join: p in Parking,
+                                      on: [id: a.parking_id],
+                                      join: pf in ParkingFee,
+                                      on: [id: p.parking_fee_id],
+                                      where: a.booking_id == 1,
+                                      select: map(pf, [:pph, :ppfm]))
+
+                case user.is_hourly do
+                  true ->
+                    parking_fee = (fee_scheme.pph * ceil(parking_time / 60)) * 100
+                    changeset = Booking.changeset(booking, booking_params)
+                                |> Changeset.put_change(:fee, parking_fee)
+                    Repo.update!(changeset)
+                    redirect(conn, to: Routes.booking_path(conn, :index))
+
+                  false ->
+                    parking_fee = ceil(fee_scheme.ppfm * parking_time / 5)
+                    changeset = Booking.changeset(booking, booking_params)
+                                |> Changeset.put_change(:fee, parking_fee)
+                    Repo.update!(changeset)
+                    redirect(conn, to: Routes.booking_path(conn, :index))
+                end
+            end
+        end
+      _ ->
+    end
+
   end
 
   def new(conn, _params) do
@@ -67,7 +129,7 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   def create(conn, %{"search" => search_params}) do
-    IO.inspect search_params, label: "search params one"
+    #IO.inspect search_params, label: "search params one"
     user = ParkingProject.Authentication.load_current_user(conn)
 
     parking_id = String.to_integer(search_params["id"])
@@ -77,7 +139,7 @@ defmodule ParkingProjectWeb.BookingController do
                     |> Map.delete(:spot)
                     |> Map.delete(:id)
 
-    IO.inspect search_params, label: "search params two"
+    #IO.inspect search_params, label: "search params two"
 
     booking_changeset = Booking.changeset(%Booking{}, search_params)
                         |> Changeset.put_change(:user, user)

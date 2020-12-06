@@ -19,6 +19,19 @@ defmodule ParkingProject.ParkingSpace.Booking do
     booking
     |> cast(attrs, [:destination, :duration, :distance, :fee, :startdate, :enddate])
     |> validate_required([:destination, :startdate])
+    |> validate_not_equal
   end
+
+  def validate_not_equal(changeset) do
+    startdate = get_field(changeset, :startdate)
+    enddate = get_field(changeset, :enddate)
+    case startdate == enddate do
+      true ->
+        add_error(changeset, :enddate, "must be different than startdate address")
+      _ ->
+        changeset
+    end
+  end
+
 
 end

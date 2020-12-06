@@ -1,4 +1,4 @@
-<h2> Change payment scheme</h2>
+<h2> Extend yer booking </h2>
 
 <%= render "form_edit_booking.html", changeset: @changeset, action: Routes.booking_path(@conn, :update, @booking) %>
 
