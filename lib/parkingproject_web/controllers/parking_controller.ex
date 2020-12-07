@@ -50,6 +50,11 @@ defmodule ParkingProjectWeb.ParkingController do
         |> put_flash(:error, "Please provide a full start date") # if startdate is completely empty
         |> redirect(to: Routes.parking_path(conn, :index))
 
+        :error ->
+        conn
+        |> put_flash(:error, "Please provide a full start date") # if startdate is partially empty ?
+        |> redirect(to: Routes.parking_path(conn, :index))
+
       _ ->
     end
 
@@ -63,7 +68,7 @@ defmodule ParkingProjectWeb.ParkingController do
 
     enddate_values = Map.values(params["enddate"])
   
-    IO.inspect Ecto.Type.cast(:utc_datetime, params["startdate"]), "whatttt"
+    IO.inspect Ecto.Type.cast(:utc_datetime, params["startdate"]), label: "whatttt"
     {:ok, startdate} = Ecto.Type.cast(:utc_datetime, params["startdate"])
 
     {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
