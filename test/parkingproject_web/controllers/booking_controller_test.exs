@@ -27,7 +27,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
       }
     }
 
-    IO.inspect String.match?("123", ~r/^(.(?<!Jakobi))*?$/), label: "regexx"
+    IO.inspect String.match?("Jakobi", ~r/^(.(?<!Jakobi))*?$/), label: "regexx"
     
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
     assert html_response(conn, 200) =~ ~r/Lossi 21/
