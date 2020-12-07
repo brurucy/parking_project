@@ -204,7 +204,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
       }
     }
     :timer.sleep(2500)
-    conn = get conn, redirected_to(conn)
+    #conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
  
   end
