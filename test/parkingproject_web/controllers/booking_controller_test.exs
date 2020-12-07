@@ -142,12 +142,12 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
 
     IO.inspect current_user, label: "current user"
 
-    conn = put conn, "/users", %{"id" => current_user.id, "user" => %{"is_hourly" => "false"}}
+    conn = put conn, "/users/" <> String.to_integer(current_user.id), %{"id" => current_user.id, "user" => %{"is_hourly" => "false"}}
     false_hourly_user = Repo.get_by(User, email: "bruno98@ut.ee")
 
     assert !false_hourly_user.is_hourly
 
-    conn = put conn, "/users", %{"id" => current_user.id, "user" => %{"is_hourly" => "true"}}
+    conn = put conn, "/users/" <> String.to_integer(current_user.id), %{"id" => current_user.id, "user" => %{"is_hourly" => "true"}}
     true_hourly_user = Repo.get_by(User, email: "bruno98@ut.ee")
 
     assert true_hourly_user.is_hourly
