@@ -98,8 +98,8 @@ defmodule ParkingProjectWeb.BookingController do
 
                 case user.is_hourly do
                   true ->
-                    parking_fee = (fee_scheme.pph * ceil(parking_time / 60)) * 100
 
+                    parking_fee = (fee_scheme.pph * ceil(parking_time / 60)) * 100
                     to_be_paid = parking_fee - booking.fee
 
                     IO.inspect to_be_paid, label: "to be paid"
@@ -137,6 +137,7 @@ defmodule ParkingProjectWeb.BookingController do
                         end
                     end
                   false ->
+
                     parking_fee = ceil(fee_scheme.ppfm * parking_time / 5)
                     to_be_paid = parking_fee - booking.fee
 
@@ -173,6 +174,7 @@ defmodule ParkingProjectWeb.BookingController do
                             end
                         end
                     end
+
                 end
             end
           _ ->

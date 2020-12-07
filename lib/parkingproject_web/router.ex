@@ -24,6 +24,7 @@ defmodule ParkingProjectWeb.Router do
   scope "/", ParkingProjectWeb do
     pipe_through :browser
     resources "/sessions", SessionController, only: [:new, :create, :delete]
+    resources "/users", UserController ## TODO is it ok if this is here
   end
 
   scope "/", ParkingProjectWeb do
@@ -33,7 +34,7 @@ defmodule ParkingProjectWeb.Router do
 
   scope "/", ParkingProjectWeb do
     pipe_through [:browser, :browser_auth, :ensure_auth]
-    resources "/users", UserController
+    
     resources "/bookings", BookingController
     resources "/parkings", ParkingController
     post "/parkings/search", ParkingController, :search
