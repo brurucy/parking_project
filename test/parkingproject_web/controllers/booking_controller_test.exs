@@ -180,9 +180,6 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     assert true_hourly_user.is_hourly
   end
 
-
-  """
-  
   test "search - invalid date - startdate in the past", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
@@ -209,6 +206,11 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
  
   end
+
+
+  """
+  
+
 
  
 
