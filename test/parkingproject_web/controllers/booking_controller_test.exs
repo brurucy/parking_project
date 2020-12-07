@@ -4,6 +4,35 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
   alias ParkingProject.{Repo, ParkingSpace.Booking, UserManagement.User}
   alias Ecto.{Changeset}
 
+  test "search - invalid date - incomplete startdate", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+      "enddate" => %{
+        "day" => "",
+        "hour" => "",
+        "minute" => "",
+        "month" => "",
+        "year" => ""
+      },
+      "radius" => "3000",
+      "startdate" => %{
+        "day" => "11",
+        "hour" => "",
+        "minute" => "",
+        "month" => "",
+        "year" => ""
+      }
+    }
+    
+    assert html_response(conn, 200) =~ ~r/No field in start date can be empty/
+ 
+  end
+
+  """
+  
   test "search - invalid date - startdate in the past", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
@@ -31,7 +60,6 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
  
   end
 
-  """
   test "search - only available parking spots are shown", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
@@ -206,35 +234,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
  
   end
 
-  test "search - invalid date - incomplete startdate", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-
-    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
-      "enddate" => %{
-        "day" => "",
-        "hour" => "",
-        "minute" => "",
-        "month" => "",
-        "year" => ""
-      },
-      "radius" => "3000",
-      "startdate" => %{
-        "day" => "11",
-        "hour" => "",
-        "minute" => "",
-        "month" => "",
-        "year" => ""
-      }
-    }
-    
-    assert html_response(conn, 200) =~ ~r/No field in start date can be empty/
- 
-  end
-
-
-
+  
   test "search - invalid date - incomplete enddate", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
