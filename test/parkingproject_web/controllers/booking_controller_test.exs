@@ -26,12 +26,41 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => "2021"
       }
     }
-
-    IO.inspect String.match?("Jakobi", ~r/^(.(?<!Jakobiii))*?$/), label: "regexx"
     
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
     assert html_response(conn, 200) =~ ~r/Lossi 21/
     assert !String.contains?(html_response(conn, 200), "Jakobi")
+
+  end
+
+  test "search - only spots in the range are shwon", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+      "enddate" => %{
+        "day" => "15",
+        "hour" => "15",
+        "minute" => "12",
+        "month" => "10",
+        "year" => "2021"
+      },
+      "radius" => "2000",
+      "startdate" => %{
+        "day" => "13",
+        "hour" => "12",
+        "minute" => "26",
+        "month" => "9",
+        "year" => "2021"
+      }
+    }
+    
+    # Must only show Lossi. Must not Jakobi and Vabriku
+    assert html_response(conn, 200) =~ ~r/Lossi 21/
+    assert !String.contains?(html_response(conn, 200), "Jakobi")
+    
+    assert !String.contains?(html_response(conn, 200), "Vabriku")
 
   end
   
