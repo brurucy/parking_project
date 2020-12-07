@@ -200,8 +200,6 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => ""
       }
     }
-
-    conn = get conn, redirected_to(conn)
     
     assert html_response(conn, 200) =~ ~r/No field in start date can be empty/
  
