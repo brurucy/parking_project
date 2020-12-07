@@ -27,11 +27,11 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
       }
     }
 
-    IO.inspect String.match?("Jakobi", ~r/^(.(?<!Jakobi))*?$/), label: "regexx"
+    IO.inspect String.match?("Jakobi", ~r/^(.(?<!Jakobiii))*?$/), label: "regexx"
     
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
     assert html_response(conn, 200) =~ ~r/Lossi 21/
-    assert html_response(conn, 200) =~ ~r/^(.(?<!Jakobiii))*?$/
+    assert html_response(conn, 200) =~ ~r/^(.(?<!Jakobi))*?$/
 
   end
   
