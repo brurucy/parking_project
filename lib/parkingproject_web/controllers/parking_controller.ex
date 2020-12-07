@@ -20,6 +20,24 @@ defmodule ParkingProjectWeb.ParkingController do
 
   end
 
+  def getStartDate(startdate_params) do
+    case Ecto.Type.cast(:utc_datetime, startdate_params) do
+      {:error, _} -> 
+        nil
+
+      {:ok, nil} ->
+        nil
+
+      :error ->
+        nil
+
+      {:ok, startdate} ->
+        startdate
+    end
+
+  end
+
+
   def create(conn, params) do
     IO.inspect params, label: "search params"
 
@@ -69,7 +87,7 @@ defmodule ParkingProjectWeb.ParkingController do
     enddate_values = Map.values(params["enddate"])
   
     IO.inspect Ecto.Type.cast(:utc_datetime, params["startdate"]), label: "whatttt"
-    {:ok, startdate} = Ecto.Type.cast(:utc_datetime, params["startdate"])
+    startdate = getStartDate(Ecto.Type.cast(:utc_datetime, params["startdate"]))
 
     {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
     IO.inspect now, label: "now"
@@ -79,7 +97,7 @@ defmodule ParkingProjectWeb.ParkingController do
         conn
         |> put_flash(:error, "Start date cannot be in the past")
         |> redirect(to: Routes.parking_path(conn, :index))
-      false ->
+      _ ->
     end
 
     query = from p in Parking, select: p
