@@ -87,7 +87,7 @@ defmodule ParkingProjectWeb.ParkingController do
     enddate_values = Map.values(params["enddate"])
   
     IO.inspect Ecto.Type.cast(:utc_datetime, params["startdate"]), label: "whatttt"
-    startdate = getStartDate(Ecto.Type.cast(:utc_datetime, params["startdate"]))
+    startdate = getStartDate(params["startdate"])
 
     {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
     IO.inspect now, label: "now"
@@ -194,6 +194,7 @@ defmodule ParkingProjectWeb.ParkingController do
 
             {:ok, enddate} = Ecto.Type.cast(:utc_datetime, params["enddate"])
 
+            IO.inspect startdate, label: "startime!"
             parking_time = DateTime.diff(enddate, startdate) / 60 ## in minutes
 
             case parking_time < 1 do
