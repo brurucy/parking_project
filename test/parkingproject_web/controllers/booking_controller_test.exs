@@ -496,7 +496,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         }
       }
 
-    conn = get(conn, redirected_to(conn))
+    #conn = get(conn, redirected_to(conn))
     assert html_response(conn, 200) =~ ~r/Lossi 21/
 
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
@@ -527,7 +527,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         }
       }
 
-    conn = get(conn, redirected_to(conn))
+    #conn = get(conn, redirected_to(conn))
     assert html_response(conn, 200) =~ ~r/End date must be later than start date/
   end
 
