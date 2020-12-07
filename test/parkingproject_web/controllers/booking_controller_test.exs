@@ -202,7 +202,6 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => "2019"
       }
     }
-    conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
  
   end
