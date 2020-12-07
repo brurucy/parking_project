@@ -209,14 +209,184 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
  
   end
 
+  test "search - available spots decrease once a booking is made", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    changeset = User.changeset(current_user,  %{"is_hourly" => "false"})
+
+    Repo.update!(changeset)
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+      "enddate" => %{
+        "day" => "15",
+        "hour" => "15",
+        "minute" => "12",
+        "month" => "10",
+        "year" => "2021"
+      },
+      "radius" => "3000",
+      "startdate" => %{
+        "day" => "15",
+        "hour" => "14",
+        "minute" => "12",
+        "month" => "10",
+        "year" => "2021"
+      }
+    }
+    
+    assert html_response(conn, 200) =~ ~r/Vabriku 1/
+    assert html_response(conn, 200) =~ ~r/3/
+
+    conn = post conn, "/bookings", %{
+      "category" => "A",
+      "destination" => "Raatuse 22",
+      "distance" => "2984",
+      "duration" => "312",
+      "enddate" => %{
+        "day" => "13",
+        "hour" => "15",
+        "minute" => "15",
+        "month" => "11",
+        "year" => "2022"
+      },
+      "fee" => "5400",
+      "free" => "3",
+      "id" => "1",
+      "ppfm" => "16",
+      "pph" => "2",
+      "spot" => "Vabriku 1",
+      "startdate" => %{
+        "day" => "12",
+        "hour" => "12",
+        "minute" => "13",
+        "month" => "11",
+        "year" => "2022"
+      },
+      "taken" => "0"
+    }
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+    "enddate" => %{
+      "day" => "15",
+      "hour" => "15",
+      "minute" => "12",
+      "month" => "10",
+      "year" => "2021"
+    },
+    "radius" => "3000",
+    "startdate" => %{
+      "day" => "15",
+      "hour" => "14",
+      "minute" => "12",
+      "month" => "10",
+      "year" => "2021"
+    }
+  }
+  
+  assert html_response(conn, 200) =~ ~r/Vabriku 1/
+  assert html_response(conn, 200) =~ ~r/2/
+
+  conn = post conn, "/bookings", %{
+    "category" => "A",
+    "destination" => "Raatuse 22",
+    "distance" => "2984",
+    "duration" => "312",
+    "enddate" => %{
+      "day" => "13",
+      "hour" => "15",
+      "minute" => "15",
+      "month" => "11",
+      "year" => "2022"
+    },
+    "fee" => "5400",
+    "free" => "3",
+    "id" => "1",
+    "ppfm" => "16",
+    "pph" => "2",
+    "spot" => "Vabriku 1",
+    "startdate" => %{
+      "day" => "12",
+      "hour" => "12",
+      "minute" => "13",
+      "month" => "11",
+      "year" => "2022"
+    },
+    "taken" => "0"
+  }
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+    "enddate" => %{
+      "day" => "15",
+      "hour" => "15",
+      "minute" => "12",
+      "month" => "10",
+      "year" => "2021"
+    },
+    "radius" => "3000",
+    "startdate" => %{
+      "day" => "15",
+      "hour" => "14",
+      "minute" => "12",
+      "month" => "10",
+      "year" => "2021"
+    }
+  }
+
+  conn = post conn, "/bookings", %{
+    "category" => "A",
+    "destination" => "Raatuse 22",
+    "distance" => "2984",
+    "duration" => "312",
+    "enddate" => %{
+      "day" => "13",
+      "hour" => "15",
+      "minute" => "15",
+      "month" => "11",
+      "year" => "2022"
+    },
+    "fee" => "5400",
+    "free" => "3",
+    "id" => "1",
+    "ppfm" => "16",
+    "pph" => "2",
+    "spot" => "Vabriku 1",
+    "startdate" => %{
+      "day" => "12",
+      "hour" => "12",
+      "minute" => "13",
+      "month" => "11",
+      "year" => "2022"
+    },
+    "taken" => "0"
+  }
+
+  conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+  "enddate" => %{
+    "day" => "15",
+    "hour" => "15",
+    "minute" => "12",
+    "month" => "10",
+    "year" => "2021"
+  },
+  "radius" => "3000",
+  "startdate" => %{
+    "day" => "15",
+    "hour" => "14",
+    "minute" => "12",
+    "month" => "10",
+    "year" => "2021"
+  }
+  }
+
+  assert !String.contains?(html_response(conn, 200), "Vabriku")
+
+
+  end
 
   """
-  
 
-
- 
-
-  
   test "search - invalid date - no date picked", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
@@ -330,39 +500,6 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
   """
   
   """
-  test "book a parking place", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-
-    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: 50.0]}
-  #  :timer.sleep(2500)
-    conn = get conn, redirected_to(conn)
-    assert html_response(conn, 200) =~ ~r/Parking confirmed/
-  end
-
-  test "display parking place details", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: 50.0]}
-  #  :timer.sleep(2500)
-    conn = get conn, redirected_to(conn)
-    assert html_response(conn, 200) =~ ~r/Jakobi 2/
-    assert html_response(conn, 200) =~ ~r/Raatuse 23/
-    assert html_response(conn, 200) =~ ~r/50.0/
-    assert html_response(conn, 200) =~ ~r/1660.7/
-    assert html_response(conn, 200) =~ ~r/A/
-  end
-
-  test "closest location", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: 50.0]}
-    conn = get conn, redirected_to(conn)
-    assert html_response(conn, 200) =~ ~r/Jakobi 2/
-  end
 
   test "invalid destination", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
@@ -373,20 +510,6 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     assert html_response(conn, 200) =~ ~r/Destination is invalid/
   end
 
-  test "invalid duration (negative number)", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: -50.0]}
-    assert html_response(conn, 200) =~ ~r/Duration must be greater than 0/
-  end
 
-  test "invalid duration (string instead of number)", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-    conn = post conn, "/bookings", %{booking: [user: current_user, destination: "Raatuse 23", duration: "csjblhebl"]}
-    assert html_response(conn, 200) =~ ~r/Duration is invalid/
-  end
   """
 end

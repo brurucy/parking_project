@@ -2,9 +2,10 @@ alias ParkingProject.Repo
 alias ParkingProject.UserManagement.User
 
 alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking, ParkingFee}
+alias ParkingProject.PaymentManagement.Wallet
 
 
-User.changeset(%User{},
+bruno = User.changeset(%User{},
   %{name: "RUcy",
     email: "bruno98@ut.ee",
     password: "parool",
@@ -23,6 +24,8 @@ fee_b = %ParkingFee{}
 %{spot: "Jakobi 2", parking_fee_id: fee_b.id, places: 0, latitude: 58.38237, longitude: 26.71489}]
 |> Enum.map(fn parking_data -> Parking.changeset(%Parking{}, parking_data) end)
 |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
+
+Wallet.changeset(%Wallet{}, %{user_id: 1, amount: 3333333}) |> Repo.insert()
 
 
 

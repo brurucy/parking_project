@@ -197,7 +197,7 @@ defmodule ParkingProjectWeb.BookingController do
   end
 
   def create(conn, %{"search" => search_params}) do
-    #IO.inspect search_params, label: "search params one"
+    IO.inspect search_params, label: "search params one"
     user = ParkingProject.Authentication.load_current_user(conn)
 
     parking_id = String.to_integer(search_params["id"])
