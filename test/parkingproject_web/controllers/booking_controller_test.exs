@@ -63,6 +63,38 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     assert !String.contains?(html_response(conn, 200), "Vabriku")
 
   end
+
+  test "search - price corresponds to zone", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+      "enddate" => %{
+        "day" => "15",
+        "hour" => "15",
+        "minute" => "12",
+        "month" => "10",
+        "year" => "2021"
+      },
+      "radius" => "3000",
+      "startdate" => %{
+        "day" => "15",
+        "hour" => "14",
+        "minute" => "12",
+        "month" => "10",
+        "year" => "2021"
+      }
+    }
+    
+    assert html_response(conn, 200) =~ ~r/Lossi 21/
+    assert html_response(conn, 200) =~ ~r/B/
+    assert html_response(conn, 200) =~ ~r/<td>100/
+
+    assert html_response(conn, 200) =~ ~r/Vabriku 1/
+    assert html_response(conn, 200) =~ ~r/A/
+    assert html_response(conn, 200) =~ ~r/<td>200/
+  end
   
   """
   test "book a parking place", %{conn: conn} do
