@@ -50,13 +50,13 @@ defmodule ParkingProjectWeb.ParkingController do
         |> put_flash(:error, "Please provide a full start date") # if startdate is completely empty
         |> redirect(to: Routes.parking_path(conn, :index))
 
-        :error ->
+      :error ->
         conn
-        |> put_flash(:error, "Please provide a full start date") # if startdate is partially empty ?
+        |> put_flash(:error, "Please provide a full start date 3") # if startdate is partially empty ?
         |> redirect(to: Routes.parking_path(conn, :index))
 
-      _ ->
-    end
+      {:ok, _} ->
+    end 
 
     case Enum.member?(Map.values(params["startdate"]), "") do
       true ->
