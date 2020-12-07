@@ -140,7 +140,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
 
-    %{"id" => id, "user" => user_params}
+    IO.inspect current_user, label: "current user"
 
     conn = put conn, "/users", %{"id" => current_user.id, "user" => %{"is_hourly" => "false"}}
     false_hourly_user = Repo.get_by(User, email: "bruno98@ut.ee")
