@@ -173,7 +173,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => ""
       }
     }
-    
+    conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Please provide a start date/
  
   end
@@ -200,6 +200,8 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => ""
       }
     }
+
+    conn = get conn, redirected_to(conn)
     
     assert html_response(conn, 200) =~ ~r/No field in start date can be empty/
  
@@ -227,7 +229,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => "2019"
       }
     }
-    
+    conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
  
   end
@@ -254,6 +256,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => "2022"
       }
     }
+    conn = get conn, redirected_to(conn)
     
     assert html_response(conn, 200) =~ ~r/if you wanna supply an end date at least fill all values/ 
  
@@ -282,7 +285,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
       }
     }
     
-    
+    conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/Lossi 21/
 
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
@@ -310,7 +313,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
         "year" => "2022"
       }
     }
-    
+    conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/End date must be later than start date/ 
   end
   
