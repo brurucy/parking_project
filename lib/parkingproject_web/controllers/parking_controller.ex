@@ -120,7 +120,7 @@ defmodule ParkingProjectWeb.ParkingController do
 
         case BetterGeolocation.get_coords(destination) do
           {:ok, origin_coords} ->
-
+            IO.inspect origin_coords, label: "coords"
             # Whole grain
             spot_distances = spot_names
                             |> Enum.map(fn spot -> Atom.to_string(spot) end)
