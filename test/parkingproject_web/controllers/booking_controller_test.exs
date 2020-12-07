@@ -62,38 +62,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
 
   end
 
-  """
-  
-  test "search - invalid date - startdate in the past", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-
-    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
-      "enddate" => %{
-        "day" => "",
-        "hour" => "",
-        "minute" => "",
-        "month" => "",
-        "year" => ""
-      },
-      "radius" => "3000",
-      "startdate" => %{
-        "day" => "11",
-        "hour" => "11",
-        "minute" => "11",
-        "month" => "11",
-        "year" => "2019"
-      }
-    }
-    conn = get conn, redirected_to(conn)
-    assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
- 
-  end
-
- 
-
-  test "search - only spots in the range are shwon", %{conn: conn} do
+  test "search - only spots in the range are shown", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
@@ -211,6 +180,39 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     assert true_hourly_user.is_hourly
   end
 
+
+  """
+  
+  test "search - invalid date - startdate in the past", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+      "enddate" => %{
+        "day" => "",
+        "hour" => "",
+        "minute" => "",
+        "month" => "",
+        "year" => ""
+      },
+      "radius" => "3000",
+      "startdate" => %{
+        "day" => "11",
+        "hour" => "11",
+        "minute" => "11",
+        "month" => "11",
+        "year" => "2019"
+      }
+    }
+    conn = get conn, redirected_to(conn)
+    assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
+ 
+  end
+
+ 
+
+  
   test "search - invalid date - no date picked", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
