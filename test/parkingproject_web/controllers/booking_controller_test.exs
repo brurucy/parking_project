@@ -68,6 +68,9 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
     current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+    changeset = User.changeset(current_user,  %{"is_hourly" => "true"})
+
+    Repo.update!(changeset)
 
     conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
       "enddate" => %{
@@ -89,11 +92,11 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     
     assert html_response(conn, 200) =~ ~r/Lossi 21/
     assert html_response(conn, 200) =~ ~r/B/
-    assert html_response(conn, 200) =~ ~r/<td>100/
+    assert html_response(conn, 200) =~ ~r/<td>100<\/td>/
 
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
     assert html_response(conn, 200) =~ ~r/A/
-    assert html_response(conn, 200) =~ ~r/<td>200/
+    assert html_response(conn, 200) =~ ~r/<td>200<\/td>/
   end
 
   test "search - real time correct price", %{conn: conn} do
@@ -125,11 +128,29 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     
     assert html_response(conn, 200) =~ ~r/Lossi 21/
     assert html_response(conn, 200) =~ ~r/B/
-    assert html_response(conn, 200) =~ ~r/<td>96/
+    assert html_response(conn, 200) =~ ~r/<td>96<\/td>/
 
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
     assert html_response(conn, 200) =~ ~r/A/
-    assert html_response(conn, 200) =~ ~r/<td>192/
+    assert html_response(conn, 200) =~ ~r/<td>192<\/td>/
+  end
+
+  test "search - payment method is updated in the db", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    %{"id" => id, "user" => user_params}
+
+    conn = put conn, "/users", %{"id" => current_user.id, "user" => %{"is_hourly" => "false"}}
+    false_hourly_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    assert !false_hourly_user.is_hourly
+
+    conn = put conn, "/users", %{"id" => current_user.id, "user" => %{"is_hourly" => "true"}}
+    true_hourly_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    assert true_hourly_user.is_hourly
   end
   
   """

@@ -31,7 +31,7 @@
                   <li>Konnichiwa ^_^</li>
                   <li id="logout_button"><%= link "Log Out", to: Routes.session_path(@conn, :delete, ParkingProject.Authentication.load_current_user(@conn)), method: "delete" %></li>
                 <% else %>
-                  <li id="sign_in_button"><%= link "Sign in", to: Routes.session_path(@conn, :new), method: "get" %></li>
+                  <li id="sign_in_button"><%= link "Sign in", to: Routes.session_path(@conn, :new), method: "get" %></li> 
                   <li id="sign_up_button"><%= link "Sign up", to: Routes.user_path(@conn, :new), method: "get" %></li>
                 <% end %>
               </ol>
