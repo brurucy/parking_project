@@ -56,7 +56,7 @@ defmodule ParkingProjectWeb.ParkingController do
     case Enum.member?(Map.values(params["startdate"]), "") do
       true ->
         conn
-        |> put_flash(:error, "no field in start date can be empty")
+        |> put_flash(:error, "No field in start date can be empty")
         |> redirect(to: Routes.parking_path(conn, :index))
       _ ->
     end
