@@ -31,7 +31,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
     assert html_response(conn, 200) =~ ~r/Lossi 21/
-    assert String.match?(html_response(conn, 200), ~r/^(.(?<!Jakobi))*?$/)
+    assert !String.contains?(html_response(conn, 200), "Jakobi")
 
   end
   
