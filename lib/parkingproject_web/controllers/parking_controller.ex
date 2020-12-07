@@ -70,7 +70,7 @@ defmodule ParkingProjectWeb.ParkingController do
 
       :error ->
         conn
-        |> put_flash(:error, "Please provide a full start date 3") # if startdate is partially empty ?
+        |> put_flash(:error, "No field in start date can be empty") # if startdate is partially empty ?
         |> redirect(to: Routes.parking_path(conn, :index))
 
       {:ok, _} ->
