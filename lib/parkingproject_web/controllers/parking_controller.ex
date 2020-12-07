@@ -42,12 +42,12 @@ defmodule ParkingProjectWeb.ParkingController do
     case Ecto.Type.cast(:utc_datetime, params["startdate"]) do
       {:error, _} -> 
         conn
-        |> put_flash(:error, "Please provide a start date")
+        |> put_flash(:error, "Please provide a full start date")
         |> redirect(to: Routes.parking_path(conn, :index))
 
       {:ok, nil} ->
         conn
-        |> put_flash(:error, "Please provide a start date")
+        |> put_flash(:error, "Please provide a full start date") # if startdate is completely empty
         |> redirect(to: Routes.parking_path(conn, :index))
 
       _ ->
@@ -62,6 +62,7 @@ defmodule ParkingProjectWeb.ParkingController do
     end
 
     enddate_values = Map.values(params["enddate"])
+
 
     {:ok, startdate} = Ecto.Type.cast(:utc_datetime, params["startdate"])
 
