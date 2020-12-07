@@ -74,168 +74,161 @@ defmodule ParkingProjectWeb.ParkingController do
         |> redirect(to: Routes.parking_path(conn, :index))
 
       {:ok, _} ->
-    end 
-
-    case Enum.member?(Map.values(params["startdate"]), "") do
-      true ->
-        conn
-        |> put_flash(:error, "No field in start date can be empty")
-        |> redirect(to: Routes.parking_path(conn, :index))
-      _ ->
-    end
-
-    enddate_values = Map.values(params["enddate"])
+        enddate_values = Map.values(params["enddate"])
   
-    IO.inspect Ecto.Type.cast(:utc_datetime, params["startdate"]), label: "whatttt"
-    startdate = getStartDate(params["startdate"])
+        IO.inspect Ecto.Type.cast(:utc_datetime, params["startdate"]), label: "whatttt"
+        startdate = getStartDate(params["startdate"])
 
-    {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
-    IO.inspect now, label: "now"
+        {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
+        IO.inspect now, label: "now"
 
-    case startdate != nil and DateTime.diff(startdate, now) < 0 do
-      true ->
-        conn
-        |> put_flash(:error, "Start date cannot be in the past")
-        |> redirect(to: Routes.parking_path(conn, :index))
-      _ ->
-    end
-
-    query = from p in Parking, select: p
-
-    all_spots = Repo.all(query)
-    destination = params["destination"]
-
-    name_to_spot = all_spots |> Enum.map(fn parking -> {String.to_atom(parking.spot), parking} end)
-
-    spots_ids = all_spots |> Enum.map(fn spot -> spot.id end)
-
-    cat_query = Repo.all(from p in ParkingProject.ParkingSpace.Parking,
-                         join: pf in ParkingProject.ParkingSpace.ParkingFee,
-                         on: [id: p.parking_fee_id],
-                         select: [pf.category, pf.pph, pf.ppfm])
-
-    spot_categories = Enum.map(cat_query, fn l -> Enum.at(l, 0) end)
-
-    spot_pph = Enum.map(cat_query, fn l -> Enum.at(l, 1) end)
-
-    spot_ppfm = Enum.map(cat_query, fn l -> Enum.at(l, 2) end)
-
-    spot_free_spots = all_spots |> Enum.map(fn spot -> spot.places end)
-
-    spot_taken_spots = spots_ids |> Enum.map(fn spot -> number_of_allocated_spots(spot) end)
-
-    spot_names = name_to_spot |> Enum.map(fn {k, v} -> k end)
-
-    spot_distances = nil
-
-    case BetterGeolocation.get_coords(destination) do
-      {:ok, origin_coords} ->
-
-        # Whole grain
-        spot_distances = spot_names
-                         |> Enum.map(fn spot -> Atom.to_string(spot) end)
-                         |> Enum.map(fn spot -> BetterGeolocation.get_distance_with_origin_coords(origin_coords, spot) end)
-
-        # Basil + white sauce
-        spot_distances = spot_distances
-                         |> Enum.map(fn {k, v} -> v end)
-                         |> Enum.zip(spots_ids)
-                         |> Enum.map(fn {k, v} -> Map.put_new(k, :id, v) end)
-                         |> Enum.zip(spot_names |> Enum.map(fn spot_name -> Atom.to_string(spot_name) end))
-                         |> Enum.map(fn {k, v} -> Map.put_new(k, :spot, v) end)
-                         |> Enum.zip(spot_taken_spots)
-                         |> Enum.map(fn {k, v} -> Map.put_new(k, :taken, v) end)
-                         |> Enum.zip(spot_free_spots)
-                         |> Enum.map(fn {k, v} -> Map.put_new(k, :free, v) end)
-                         |> Enum.zip(spot_categories)
-                         |> Enum.map(fn {k, v} -> Map.put_new(k, :category, v) end)
-                         |> Enum.zip(spot_pph)
-                         |> Enum.map(fn {k, v} -> Map.put_new(k, :pph, v) end)
-                         |> Enum.zip(spot_ppfm)
-                         |> Enum.map(fn {k, v} -> Map.put_new(k, :ppfm, v) end)
-
-        spot_distances = spot_distances
-                         |> Enum.sort_by(fn k -> k.distance end)
-                         |> Enum.map(fn k -> Map.update!(k, :distance, fn dist -> round(dist) end) end)
-                         |> Enum.map(fn k -> Map.update!(k, :duration, fn dur -> round(dur) end) end)
-                         |> Enum.map(fn k -> Map.put_new(k, :destination, destination) end)
-                         |> Enum.map(fn k -> Map.put_new(k, :startdate, params["startdate"]) end)
-
-        case Enum.member?(enddate_values, "") do
+        case startdate != nil and DateTime.diff(startdate, now) < 0 do
           true ->
-            case length(MapSet.to_list(MapSet.new(enddate_values))) == 1 do
-              true ->
-                IO.inspect spot_distances, label: "spotty"
-
-                spot_distances = spot_distances
-                                 |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
-                                 |> Enum.map(fn k -> Map.put_new(k, :enddate, nil) end)
-                                 |> Enum.map(fn k -> Map.put_new(k, :fee, nil) end)
-
-                render conn, "index.html", data: %{
-                  changeset: Booking.changeset(%Booking{}, %{}),
-                  spots: spot_distances
-                }
-              false ->
-                conn
-                |> put_flash(:error , "if you wanna supply an end date at least fill all values")
-                |> redirect(to: Routes.parking_path(conn, :index))
-            end
+            conn
+            |> put_flash(:error, "Start date cannot be in the past")
+            |> redirect(to: Routes.parking_path(conn, :index))
           _ ->
-
-            spot_distances = spot_distances
-                             |> Enum.sort_by(fn k -> k.distance end)
-                             |> Enum.map(fn k -> Map.update!(k, :distance, fn dist -> round(dist) end) end)
-                             |> Enum.map(fn k -> Map.update!(k, :duration, fn dur -> round(dur) end) end)
-                             |> Enum.map(fn k -> Map.put_new(k, :destination, destination) end)
-                             |> Enum.map(fn k -> Map.put_new(k, :startdate, params["startdate"]) end)
-                             |> Enum.map(fn k -> Map.put_new(k, :enddate, params["enddate"]) end)
-
-
-            {:ok, enddate} = Ecto.Type.cast(:utc_datetime, params["enddate"])
-
-            IO.inspect startdate, label: "startime!"
-            parking_time = DateTime.diff(enddate, startdate) / 60 ## in minutes
-
-            case parking_time < 1 do
-              true ->
-                conn
-                |> put_flash(:error, "End date must be later than start date")
-                |> redirect(to: Routes.parking_path(conn, :index))
-              false ->
-            end
-
-            user = ParkingProject.Authentication.load_current_user(conn)
-
-            case user.is_hourly do
-              true ->
-                spot_distances = spot_distances
-                                 |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * round(parking_time / 60)) * 100) end)
-                                 |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
-
-                render conn, "index.html", data: %{
-                  changeset: Booking.changeset(%Booking{}, %{}),
-                  spots: spot_distances
-                }
-              _ ->
-                spot_distances = spot_distances
-                                 |> Enum.map(fn k -> Map.put_new(k, :fee, round(k.ppfm * parking_time / 5)) end)
-                                 |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
-
-                render conn, "index.html", data: %{
-                  changeset: Booking.changeset(%Booking{}, %{}),
-                  spots: spot_distances
-                }
-            end
-
         end
 
-      {:error, _} ->
-        conn
-        |> put_flash(:error, "Destination is invalid")
-        |> redirect(to: Routes.parking_path(conn, :index))
+        query = from p in Parking, select: p
 
-    end
+        all_spots = Repo.all(query)
+        destination = params["destination"]
+
+        name_to_spot = all_spots |> Enum.map(fn parking -> {String.to_atom(parking.spot), parking} end)
+
+        spots_ids = all_spots |> Enum.map(fn spot -> spot.id end)
+
+        cat_query = Repo.all(from p in ParkingProject.ParkingSpace.Parking,
+                            join: pf in ParkingProject.ParkingSpace.ParkingFee,
+                            on: [id: p.parking_fee_id],
+                            select: [pf.category, pf.pph, pf.ppfm])
+
+        spot_categories = Enum.map(cat_query, fn l -> Enum.at(l, 0) end)
+
+        spot_pph = Enum.map(cat_query, fn l -> Enum.at(l, 1) end)
+
+        spot_ppfm = Enum.map(cat_query, fn l -> Enum.at(l, 2) end)
+
+        spot_free_spots = all_spots |> Enum.map(fn spot -> spot.places end)
+
+        spot_taken_spots = spots_ids |> Enum.map(fn spot -> number_of_allocated_spots(spot) end)
+
+        spot_names = name_to_spot |> Enum.map(fn {k, v} -> k end)
+
+        spot_distances = nil
+
+        case BetterGeolocation.get_coords(destination) do
+          {:ok, origin_coords} ->
+
+            # Whole grain
+            spot_distances = spot_names
+                            |> Enum.map(fn spot -> Atom.to_string(spot) end)
+                            |> Enum.map(fn spot -> BetterGeolocation.get_distance_with_origin_coords(origin_coords, spot) end)
+
+            # Basil + white sauce
+            spot_distances = spot_distances
+                            |> Enum.map(fn {k, v} -> v end)
+                            |> Enum.zip(spots_ids)
+                            |> Enum.map(fn {k, v} -> Map.put_new(k, :id, v) end)
+                            |> Enum.zip(spot_names |> Enum.map(fn spot_name -> Atom.to_string(spot_name) end))
+                            |> Enum.map(fn {k, v} -> Map.put_new(k, :spot, v) end)
+                            |> Enum.zip(spot_taken_spots)
+                            |> Enum.map(fn {k, v} -> Map.put_new(k, :taken, v) end)
+                            |> Enum.zip(spot_free_spots)
+                            |> Enum.map(fn {k, v} -> Map.put_new(k, :free, v) end)
+                            |> Enum.zip(spot_categories)
+                            |> Enum.map(fn {k, v} -> Map.put_new(k, :category, v) end)
+                            |> Enum.zip(spot_pph)
+                            |> Enum.map(fn {k, v} -> Map.put_new(k, :pph, v) end)
+                            |> Enum.zip(spot_ppfm)
+                            |> Enum.map(fn {k, v} -> Map.put_new(k, :ppfm, v) end)
+
+            spot_distances = spot_distances
+                            |> Enum.sort_by(fn k -> k.distance end)
+                            |> Enum.map(fn k -> Map.update!(k, :distance, fn dist -> round(dist) end) end)
+                            |> Enum.map(fn k -> Map.update!(k, :duration, fn dur -> round(dur) end) end)
+                            |> Enum.map(fn k -> Map.put_new(k, :destination, destination) end)
+                            |> Enum.map(fn k -> Map.put_new(k, :startdate, params["startdate"]) end)
+
+            case Enum.member?(enddate_values, "") do
+              true ->
+                case length(MapSet.to_list(MapSet.new(enddate_values))) == 1 do
+                  true ->
+                    IO.inspect spot_distances, label: "spotty"
+
+                    spot_distances = spot_distances
+                                    |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
+                                    |> Enum.map(fn k -> Map.put_new(k, :enddate, nil) end)
+                                    |> Enum.map(fn k -> Map.put_new(k, :fee, nil) end)
+
+                    render conn, "index.html", data: %{
+                      changeset: Booking.changeset(%Booking{}, %{}),
+                      spots: spot_distances
+                    }
+                  false ->
+                    conn
+                    |> put_flash(:error , "if you wanna supply an end date at least fill all values")
+                    |> redirect(to: Routes.parking_path(conn, :index))
+                end
+              _ ->
+
+                spot_distances = spot_distances
+                                |> Enum.sort_by(fn k -> k.distance end)
+                                |> Enum.map(fn k -> Map.update!(k, :distance, fn dist -> round(dist) end) end)
+                                |> Enum.map(fn k -> Map.update!(k, :duration, fn dur -> round(dur) end) end)
+                                |> Enum.map(fn k -> Map.put_new(k, :destination, destination) end)
+                                |> Enum.map(fn k -> Map.put_new(k, :startdate, params["startdate"]) end)
+                                |> Enum.map(fn k -> Map.put_new(k, :enddate, params["enddate"]) end)
+
+
+                {:ok, enddate} = Ecto.Type.cast(:utc_datetime, params["enddate"])
+
+                IO.inspect startdate, label: "startime!"
+                parking_time = DateTime.diff(enddate, startdate) / 60 ## in minutes
+
+                case parking_time < 1 do
+                  true ->
+                    conn
+                    |> put_flash(:error, "End date must be later than start date")
+                    |> redirect(to: Routes.parking_path(conn, :index))
+                  false ->
+                end
+
+                user = ParkingProject.Authentication.load_current_user(conn)
+
+                case user.is_hourly do
+                  true ->
+                    spot_distances = spot_distances
+                                    |> Enum.map(fn k -> Map.put_new(k, :fee, (k.pph * round(parking_time / 60)) * 100) end)
+                                    |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
+
+                    render conn, "index.html", data: %{
+                      changeset: Booking.changeset(%Booking{}, %{}),
+                      spots: spot_distances
+                    }
+                  _ ->
+                    spot_distances = spot_distances
+                                    |> Enum.map(fn k -> Map.put_new(k, :fee, round(k.ppfm * parking_time / 5)) end)
+                                    |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)
+
+                    render conn, "index.html", data: %{
+                      changeset: Booking.changeset(%Booking{}, %{}),
+                      spots: spot_distances
+                    }
+                end
+
+            end
+
+          {:error, _} ->
+            conn
+            |> put_flash(:error, "Destination is invalid")
+            |> redirect(to: Routes.parking_path(conn, :index))
+
+        end
+    end 
+
+    
   end
 
   def add_with_availability_check(parkings, parking, destination, parking_time) do
