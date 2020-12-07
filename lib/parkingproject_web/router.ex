@@ -38,6 +38,7 @@ defmodule ParkingProjectWeb.Router do
     resources "/bookings", BookingController
     resources "/parkings", ParkingController
     post "/parkings/search", ParkingController, :search
+    resources "/wallet", WalletController
   end
 
   if Mix.env() in [:dev, :test] do
