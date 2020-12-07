@@ -92,7 +92,7 @@ defmodule ParkingProjectWeb.ParkingController do
     {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
     IO.inspect now, label: "now"
 
-    case DateTime.diff(startdate, now) < 0 do
+    case startdate != nil and DateTime.diff(startdate, now) < 0 do
       true ->
         conn
         |> put_flash(:error, "Start date cannot be in the past")
