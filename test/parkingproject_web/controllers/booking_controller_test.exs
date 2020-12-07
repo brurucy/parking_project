@@ -4,6 +4,34 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
   alias ParkingProject.{Repo, ParkingSpace.Booking, UserManagement.User}
   alias Ecto.{Changeset}
 
+  test "search - invalid date - startdate in the past", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+      "enddate" => %{
+        "day" => "",
+        "hour" => "",
+        "minute" => "",
+        "month" => "",
+        "year" => ""
+      },
+      "radius" => "3000",
+      "startdate" => %{
+        "day" => "11",
+        "hour" => "11",
+        "minute" => "11",
+        "month" => "11",
+        "year" => "2019"
+      }
+    }
+    conn = get conn, redirected_to(conn)
+    assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
+ 
+  end
+
+  """
   test "search - only available parking spots are shown", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
@@ -205,32 +233,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
  
   end
 
-  test "search - invalid date - startdate in the past", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
 
-    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
-      "enddate" => %{
-        "day" => "",
-        "hour" => "",
-        "minute" => "",
-        "month" => "",
-        "year" => ""
-      },
-      "radius" => "3000",
-      "startdate" => %{
-        "day" => "11",
-        "hour" => "11",
-        "minute" => "11",
-        "month" => "11",
-        "year" => "2019"
-      }
-    }
-    conn = get conn, redirected_to(conn)
-    assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
- 
-  end
 
   test "search - invalid date - incomplete enddate", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
@@ -314,6 +317,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/End date must be later than start date/ 
   end
+  """
   
   """
   test "book a parking place", %{conn: conn} do
