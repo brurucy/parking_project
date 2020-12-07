@@ -28,7 +28,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     }
     
     :timer.sleep(2500)
-    #conn = get conn, redirected_to(conn)
+    conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/No field in start date can be empty/
  
   end
@@ -177,6 +177,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     conn = put conn, "/users/" <> Integer.to_string(current_user.id), %{"id" => current_user.id, "user" => %{"is_hourly" => "true"}}
     true_hourly_user = Repo.get_by(User, email: "bruno98@ut.ee")
 
+  
     assert true_hourly_user.is_hourly
   end
 
