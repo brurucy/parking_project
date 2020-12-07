@@ -27,6 +27,7 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
       }
     }
     
+    :timer.sleep(2500)
     assert html_response(conn, 200) =~ ~r/No field in start date can be empty/
  
   end
