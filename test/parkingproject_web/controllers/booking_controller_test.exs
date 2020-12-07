@@ -7,9 +7,9 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
   test "search - invalid date - incomplete startdate", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
 
-    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+    conn = post conn, "/parkings", %{
+      "destination" => "Raatuse 22",
       "enddate" => %{
         "day" => "",
         "hour" => "",
@@ -28,37 +28,8 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     }
     
     :timer.sleep(2500)
-    conn = get conn, redirected_to(conn)
+    #conn = get conn, redirected_to(conn)
     assert html_response(conn, 200) =~ ~r/No field in start date can be empty/
- 
-  end
-
-  """
-  
-  test "search - invalid date - startdate in the past", %{conn: conn} do
-    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
-    conn = get conn, redirected_to(conn)
-    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
-
-    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
-      "enddate" => %{
-        "day" => "",
-        "hour" => "",
-        "minute" => "",
-        "month" => "",
-        "year" => ""
-      },
-      "radius" => "3000",
-      "startdate" => %{
-        "day" => "11",
-        "hour" => "11",
-        "minute" => "11",
-        "month" => "11",
-        "year" => "2019"
-      }
-    }
-    conn = get conn, redirected_to(conn)
-    assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
  
   end
 
@@ -90,6 +61,37 @@ defmodule ParkingProjectWeb.ParkingControllerTest do
     assert !String.contains?(html_response(conn, 200), "Jakobi")
 
   end
+
+  """
+  
+  test "search - invalid date - startdate in the past", %{conn: conn} do
+    conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
+    conn = get conn, redirected_to(conn)
+    current_user = Repo.get_by(User, email: "bruno98@ut.ee")
+
+    conn = post conn, "/parkings", %{"destination" => "Raatuse 22",
+      "enddate" => %{
+        "day" => "",
+        "hour" => "",
+        "minute" => "",
+        "month" => "",
+        "year" => ""
+      },
+      "radius" => "3000",
+      "startdate" => %{
+        "day" => "11",
+        "hour" => "11",
+        "minute" => "11",
+        "month" => "11",
+        "year" => "2019"
+      }
+    }
+    conn = get conn, redirected_to(conn)
+    assert html_response(conn, 200) =~ ~r/Start date cannot be in the past/
+ 
+  end
+
+ 
 
   test "search - only spots in the range are shwon", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
