@@ -1,0 +1,67 @@
+<%= form_for @conn, Routes.parking_path(@conn, :search), fn search -> %>
+<h2>Search for parking spots!</h2>
+<div class="form-group">
+    <%= label search, :destination, class: "control-label" %>
+    <%= text_input search, :destination, id: "destination", class: "form-control" %>
+</div>
+<div class="form-group">
+    <%= label search, :radius, class: "control-label" %>
+    <%= number_input search, :radius, id: "radius", class: "form-control" %>
+</div>
+<div class="form-group">
+    <%= label search, :startdate, class: "control-label" %>
+    <%= datetime_select search, :startdate, builder: fn b -> %>
+    <%= b.(:minute, prompt: "Minute", id: "start_minute") %>
+    <%= b.(:hour, prompt: "Hour", id: "start_hour") %>
+    <%= b.(:day, prompt: "Day", id: "start_day") %>
+    <%= b.(:month, prompt: "Month", id: "start_month") %>
+    <%= b.(:year, prompt: "Year", id: "start_year") %>
+    <% end %>
+</div>
+<div class="form-group">
+    <%= label search, :enddate, class: "control-label" %>
+    <%= datetime_select search, :enddate, builder: fn b -> %>
+    <%= b.(:minute, prompt: "Minute", id: "end_minute") %>
+    <%= b.(:hour, prompt: "Hour", id: "end_hour") %>
+    <%= b.(:day, prompt: "Day", id: "end_day") %>
+    <%= b.(:month, prompt: "Month", id: "end_month") %>
+    <%= b.(:year, prompt: "Year", id: "end_year") %>
+    <% end %>
+</div>
+<div class="form-group">
+    <%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Spot</th>
+            <th>Fee Category</th>
+            <th>Availability</th>
+            <th>Distance(metres)</th>
+            <th>Estimated Fee(cents)</th>
+            <th>Travel time(seconds)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <body>
+    <%= for spot <- @data.spots do %>
+    <tr>
+        <%= if spot.taken != spot.free do%>
+        <td><%= spot.id %></td>
+        <td><%= spot.spot %></td>
+        <td><%= spot.category %></td>
+        <td><%= spot.free - spot.taken %></td>
+        <td><%= spot.distance %></td>
+        <td><%= spot.fee %></td>
+        <td><%= spot.duration %></td>
+        <td><%= button("Book #{spot.spot}", id: "Book #{spot.spot}",to: Routes.booking_path(@conn, :create, search: spot)) %></td>
+        <% end %>
+    </tr>
+    <% end %>
+    </body>
+</table>
+<% end %>
+
+

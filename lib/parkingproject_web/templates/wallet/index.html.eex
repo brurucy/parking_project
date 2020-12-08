@@ -1,0 +1,33 @@
+<h2>Wallet index!</h2>
+
+Your current balance is: <%= @data.balance %> cents
+
+<br />
+<br />
+
+<%= form_for @data.changeset, Routes.wallet_path(@conn, :create), fn wallet -> %>
+
+<%= label wallet, :amount, class: "control-label" %>
+
+<%= number_input wallet, :amount, id: "amount", class: "form-control" %>
+
+<%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
+
+<% end %>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>amount</th>
+        <th>date</th>
+    </tr>
+    </thead>
+    <tbody>
+    <%= for invoice <- @data.invoices do %>
+    <tr>
+        <td><%= invoice.amount %></td>
+        <td><%= invoice.date %></td>
+    </tr>
+    <% end %>
+    </tbody>
+</table>

@@ -4,30 +4,36 @@
     <thead>
         <tr>
             <th>
-                Spot :3
+                Spot
             </th>
             <th>
                 Destination
             </th>
             <th>
-                Duration
+                Fee
             </th>
             <th>
-                Category
+                Start date
             </th>
             <th>
-                Distance
+                End date
+            </th>
+            <th>
+                Extend
             </th>
         </tr>
     </thead>
     <tbody>
     <%= for booking <- @bookings do %>
         <tr>
-            <td><%= elem booking, 0 %></td>
-            <td><%= elem booking, 1 %></td>
-            <td><%= elem booking, 2 %></td>
-            <td><%= elem booking, 3 %></td>
-            <td><%= elem booking, 4 %></td>
+            <td><%= (Enum.at booking, 0).spot %></td>
+            <td><%= (Enum.at booking, 1).destination %></td>
+            <td><%= (Enum.at booking, 1).fee %></td>
+            <td><%= (Enum.at booking, 1).startdate %></td>
+            <td><%= (Enum.at booking, 1).enddate %></td>
+            <td>
+                <div id="extend" style="display: inline-block; padding-right: 15px;"><%= link "Extend #{(Enum.at booking, 1).id}", id: "Extend",to: Routes.booking_path(@conn, :edit, (Enum.at booking, 1).id), method: "get" %></div>
+            </td>
         </tr>
     <% end %>
     </tbody>

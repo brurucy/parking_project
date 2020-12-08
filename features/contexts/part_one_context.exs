@@ -1,4 +1,4 @@
-defmodule WhiteBreadContext do
+defmodule PartOneContext do
   use WhiteBread.Context
   use Hound.Helpers
 
@@ -21,12 +21,12 @@ defmodule WhiteBreadContext do
   end
 
   given_ ~r/^that I do not already have an account with email "(?<email>[^"]+)"$/,
-    fn state, %{email: email} ->
-      case Repo.get_by(User, email: email) do
-        nil -> {:ok, state |> Map.put(:email, email)}
-        _ -> {:error, state}
-        end
-    end
+         fn state, %{email: email} ->
+           case Repo.get_by(User, email: email) do
+             nil -> {:ok, state |> Map.put(:email, email)}
+             _ -> {:error, state}
+           end
+         end
 
   when_ ~r/^I open the app$/, fn state ->
     navigate_to "/"
@@ -72,8 +72,8 @@ defmodule WhiteBreadContext do
   and_ ~r/^my name is "(?<name>[^"]+)", email "(?<email>[^"]+)", license plate "(?<license_plate>[^"]+)" and desired password "(?<password>[^"]+)"$/,
        fn state, %{name: name, email: email,license_plate: license_plate,password: password} ->
          {:ok, state |> Map.put(:name, name)
-                     |> Map.put(:license_plate, license_plate)
-                     |> Map.put(:password, password)}
+               |> Map.put(:license_plate, license_plate)
+               |> Map.put(:password, password)}
        end
 
   and_ ~r/^my name is "(?<name>[^"]+)", wrong email "(?<email>[^"]+)", license plate "(?<license_plate>[^"]+)" and desired password "(?<password>[^"]+)"$/,
@@ -116,9 +116,9 @@ defmodule WhiteBreadContext do
   ## Login stuff
 
   given_ ~r/^that I have an account with the following credentials: email "(?<email>[^"]+)" and password "(?<password>[^"]+)"$/,
-  fn state, %{email: email, password: password} ->
-    {:ok, state |> Map.put(:email, email) |> Map.put(:password, password)}
-  end
+         fn state, %{email: email, password: password} ->
+           {:ok, state |> Map.put(:email, email) |> Map.put(:password, password)}
+         end
 
   when_ ~r/^I click on sign in$/, fn state ->
     button_element = find_element(:id, "sign_in_button")

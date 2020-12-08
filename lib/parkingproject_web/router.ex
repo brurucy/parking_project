@@ -24,13 +24,21 @@ defmodule ParkingProjectWeb.Router do
   scope "/", ParkingProjectWeb do
     pipe_through :browser
     resources "/sessions", SessionController, only: [:new, :create, :delete]
-    resources "/users", UserController
+    resources "/users", UserController, only: [:new, :create]
   end
 
   scope "/", ParkingProjectWeb do
     pipe_through [:browser, :browser_auth]
     get "/", PageController, :index
+  end
+
+  scope "/", ParkingProjectWeb do
+    pipe_through [:browser, :browser_auth, :ensure_auth]
+    resources "/users", UserController
     resources "/bookings", BookingController
+    resources "/parkings", ParkingController
+    post "/parkings/search", ParkingController, :search
+    resources "/wallet", WalletController
   end
 
   if Mix.env() in [:dev, :test] do

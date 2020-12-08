@@ -1,0 +1,5 @@
+<h2>Extend</h2>
+
+<%= render "form_edit_booking.html", changeset: @changeset, action: Routes.booking_path(@conn, :update, @booking) %>
+
+<span><%= link "Back", to: Routes.booking_path(@conn, :index) %></span>

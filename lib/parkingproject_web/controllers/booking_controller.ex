@@ -4,31 +4,170 @@ defmodule ParkingProjectWeb.BookingController do
   import Ecto.Query, only: [from: 2]
 
   alias ParkingProject.Repo
-  alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking}
+  alias ParkingProject.ParkingSpace.{Booking, Allocation, Parking, ParkingFee}
+  alias ParkingProject.PaymentManagement.{Wallet, Invoice}
   alias Ecto.{Changeset, Multi}
-  alias ParkingProjectWeb.Geolocation
-
-  #To test in iex
-  #ParkingProject.Repo.all(Ecto.Query.from a in ParkingProject.ParkingSpace.Allocation, join: p in ParkingProject.ParkingSpace.Parking, on: a.parking_id == p.id, join: b in ParkingProject.ParkingSpace.Booking, on: a.booking_id == b.id, where: a.booking_id == 13, select: {p.spot, b.destination, b.duration})
+  alias ParkingProjectWeb.{Geolocation, BetterGeolocation}
 
   def index(conn, _params) do
     user = ParkingProject.Authentication.load_current_user(conn)
     booking_query = from b in Booking,
                     where: b.user_id == ^user.id
     bookings = Repo.all(booking_query)
+
     query_pspot = from a in Allocation,
                   join: p in Parking,
                   on: a.parking_id == p.id,
                   join: b in Booking,
                   on: a.booking_id == b.id,
-                  where: a.booking_id in ^(bookings |> Enum.map(fn x -> x.id end)) ,
-                  select: {p.spot, b.destination, b.duration, p.category, b.distance}
+                  join: pf in ParkingFee,
+                  on: p.parking_fee_id == pf.id,
+                  where: a.booking_id in ^(bookings |> Enum.map(fn x -> x.id end)),
+                  select: [map(p, [:spot]), map(b, [:id, :destination, :duration, :distance, :fee, :startdate, :enddate]), map(pf, [:category])]
     parking_sl = Repo.all(query_pspot)
 
-    #IO.inspect bookings, label: "yeeeet"
-    #IO.inspect parking_sl, label: "gucci gang, ooh, yuh, lil pump"
-
     render conn, "index.html", bookings: parking_sl
+  end
+
+  def edit(conn, %{"id" => id}) do
+    booking = Repo.get!(Booking, id)
+    changeset = Booking.changeset(booking, %{})
+
+    render(conn, "edit.html", booking: booking, changeset: changeset)
+  end
+
+  def update(conn, %{"id" => id, "booking" => booking_params}) do
+    user = ParkingProject.Authentication.load_current_user(conn)
+    query_wallet = from w in Wallet,
+                        where: w.user_id == ^user.id,
+                        select: w
+
+    wallet = Repo.one!(query_wallet)
+
+    booking = Repo.get!(Booking, id)
+
+    {:ok, now} = DateTime.now("Etc/UTC")
+
+    case Enum.member?(Map.values(booking_params["enddate"]), "") do
+      true ->
+        conn
+        |> put_flash(:error, "no field in end date can be empty")
+        |> redirect(to: Routes.booking_path(conn, :index))
+      _ ->
+    end
+
+    {:ok, enddate} = Ecto.Type.cast(:utc_datetime, booking_params["enddate"])
+
+    case DateTime.diff(enddate, now) < 0 do
+      true ->
+        conn
+        |> put_flash(:error, "Start date cannot be in the past")
+        |> redirect(to: Routes.booking_path(conn, :index))
+      false ->
+    end
+
+    case is_nil(booking.enddate) do
+      false ->
+        case DateTime.diff(enddate, booking.enddate) < 0 do
+          true ->
+            conn
+            |> put_flash(:error, "End date cannot be before current end date")
+            |> redirect(to: Routes.booking_path(conn, :index))
+          false ->
+            parking_time = DateTime.diff(enddate, booking.startdate) / 60
+            case parking_time < 1 do
+              true ->
+                conn
+                |> put_flash(:error, "End date must be later than start date")
+                |> redirect(to: Routes.booking_path(conn, :index))
+              false ->
+                fee_scheme = Repo.one(from a in Allocation,
+                                      join: p in Parking,
+                                      on: [id: a.parking_id],
+                                      join: pf in ParkingFee,
+                                      on: [id: p.parking_fee_id],
+                                      where: a.booking_id == ^id,
+                                      select: map(pf, [:pph, :ppfm]))
+
+                case user.is_hourly do
+                  true ->
+                    parking_fee = (fee_scheme.pph * ceil(parking_time / 60)) * 100
+
+                    to_be_paid = parking_fee - booking.fee
+
+                    case to_be_paid > wallet.amount do
+                      true ->
+                        conn
+                        |> put_flash(:error, "not enough cents, add #{to_be_paid - wallet.amount} more")
+                        |> redirect(to: Routes.booking_path(conn, :index))
+                      false ->
+
+                        wallet_changeset = Repo.get!(Wallet, wallet.id)
+                                           |> Wallet.changeset(%{})
+                                           |> Changeset.put_change(:amount, wallet.amount - to_be_paid)
+
+                        case Repo.update(wallet_changeset) do
+                          {:ok, wallet} ->
+
+                            changeset = Booking.changeset(booking, booking_params)
+                                        |> Changeset.put_change(:fee, parking_fee)
+
+                            case Repo.update(changeset) do
+
+                              {:ok, booking_insertion} ->
+
+                                invoice_changeset = Invoice.changeset(%Invoice{}, %{})
+                                                    |> Changeset.put_change(:amount, -to_be_paid)
+                                                    |> Changeset.put_change(:wallet, wallet)
+                                                    |> Changeset.put_change(:booking, booking_insertion)
+
+                                Repo.insert!(invoice_changeset)
+
+                                redirect(conn, to: Routes.booking_path(conn, :index))
+
+                            end
+                        end
+                    end
+                  false ->
+                    parking_fee = ceil(fee_scheme.ppfm * parking_time / 5)
+                    to_be_paid = parking_fee - booking.fee
+
+                    case to_be_paid > wallet.amount do
+                      true ->
+                        conn
+                        |> put_flash(:error, "not enough cents, add #{to_be_paid - wallet.amount} more")
+                        |> redirect(to: Routes.booking_path(conn, :index))
+                      false ->
+                        wallet_changeset = Repo.get!(Wallet, wallet.id)
+                                           |> Wallet.changeset(%{})
+                                           |> Changeset.put_change(:amount, wallet.amount - to_be_paid)
+
+                        case Repo.update(wallet_changeset) do
+                          {:ok, wallet} ->
+
+                            changeset = Booking.changeset(booking, booking_params)
+                                        |> Changeset.put_change(:fee, parking_fee)
+
+                            case Repo.update(changeset) do
+
+                              {:ok, booking_insertion} ->
+
+                                invoice_changeset = Invoice.changeset(%Invoice{}, %{})
+                                                    |> Changeset.put_change(:amount, -to_be_paid)
+                                                    |> Changeset.put_change(:wallet, wallet)
+                                                    |> Changeset.put_change(:booking, booking_insertion)
+
+                                Repo.insert!(invoice_changeset)
+
+                                redirect(conn, to: Routes.booking_path(conn, :index))
+                            end
+                        end
+                    end
+                end
+            end
+          _ ->
+        end
+    end
   end
 
   def new(conn, _params) do
@@ -42,113 +181,103 @@ defmodule ParkingProjectWeb.BookingController do
         elem(Repo.one(query), 0)
       false ->
         0
-      end
-  end
-
-  def spot_to_distance_func(x, acc, destination) do
-    case Geolocation.distance(destination, x.spot) do
-      {:error, "Destination is invalid"} ->
-        Map.put(acc, "error", "Destination is invalid")
-      _ ->
-        Map.put(acc, x.spot, List.first(Geolocation.distance(destination, x.spot)))
     end
   end
 
-  def create(conn, %{"booking" => booking_params}) do
-    #IO.puts "HMMMMM3"
+  def create(conn, %{"search" => search_params}) do
+    #IO.inspect search_params, label: "search params one"
     user = ParkingProject.Authentication.load_current_user(conn)
 
-    booking_struct = Enum.map(booking_params, fn({key, value}) -> {String.to_atom(key), value} end)
-                     |> Enum.into(%{})
+    parking_id = String.to_integer(search_params["id"])
+    spot = search_params["spot"]
+    fee = search_params["fee"]
 
-
-    booking_struct = Map.delete(booking_struct, :user)
-
-    booking_changeset = %Booking{}
-                |> Booking.changeset(booking_struct)
-                |> Changeset.put_change(:user, user)
-                |> Changeset.put_change(:status, "taken")
-
-    ## get all parking spots
-    query = from p in Parking, select: p
-    all_spots = Repo.all(query)
-
-
-    ## key = parking.spot, value = distance from destination
-    spot_to_distance = %{}
-
-    spot_to_distance = Enum.reduce all_spots, %{}, fn x, acc ->
-
-      spot_to_distance_func(x, acc, booking_params["destination"])
-
-    end
-
-    # if destination is invalid
-    case Map.has_key?(spot_to_distance, "error") do
-      true ->
-        conn
-        |> put_flash(:error, spot_to_distance["error"])
-        # |> render("new.html", changeset: Booking.changeset(%Booking{}, %{}))
-        |> redirect(to: Routes.booking_path(conn, :new))
-
+    case is_nil(fee) do
       false ->
-        #IO.puts "test1"
-        case Repo.insert(booking_changeset) do
-          {:ok, booking_insertion} ->
-        #   IO.puts "test2"
+        query_wallet = from w in Wallet,
+                            where: w.user_id == ^user.id,
+                            select: w
 
-            ## key = parking.spot, value = parking object
-            name_to_spot = %{}
+        wallet = Repo.one!(query_wallet)
 
-            name_to_spot = Enum.reduce all_spots, %{}, fn x, acc ->
-              Map.put(acc, x.spot, x)
-            end
+        fee_int = String.to_integer(fee)
 
+        case fee_int > wallet.amount do
+          true ->
+            conn
+            |> put_flash(:error, "not enough cents, add some")
+            |> redirect(to: Routes.booking_path(conn, :index))
+          false ->
+            wallet_changeset = Repo.get!(Wallet, wallet.id)
+                               |> Wallet.changeset(%{})
+                               |> Changeset.put_change(:amount, wallet.amount - fee_int)
 
-            ## get the closest one
-            closest_parking_place_name = spot_to_distance
-            |> Enum.min_by(fn {_k, v} -> v end)
-            |> elem(0)
+            case Repo.update(wallet_changeset) do
+              {:ok, wallet} ->
 
-            #IO.inspect closest_parking_place_name, label: "closest parking place"
-            closest_parking_place = name_to_spot[closest_parking_place_name]
+                search_params = search_params
+                                |> Map.delete(:spot)
+                                |> Map.delete(:id)
 
-            query = from a in Allocation,
-              join: p in Parking,
-              on: a.parking_id == p.id,
-              where: p.spot == ^closest_parking_place.spot,
-              group_by: p.id,
-              select: {count(a), p.id}
+                booking_changeset = Booking.changeset(%Booking{}, search_params)
+                                    |> Changeset.put_change(:user, user)
+                                    |> Changeset.put_change(:status, "taken")
 
-            ## if allocation query is nil,  closest_parking_space_occupied_spots is 0. Else it is the nr of occupied spots
-            closest_parking_space_occupied_spots = case_func(query)
+                case Repo.insert(booking_changeset) do
+                  {:ok, booking_insertion} ->
 
-            case closest_parking_space_occupied_spots < closest_parking_place.places do
-              true ->
-                distance = spot_to_distance[closest_parking_place.spot]
+                    invoice_changeset = Invoice.changeset(%Invoice{}, %{})
+                                        |> Changeset.put_change(:amount, -fee_int)
+                                        |> Changeset.put_change(:wallet, wallet)
+                                        |> Changeset.put_change(:booking, booking_insertion)
 
-                Multi.new
-                |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, closest_parking_place.id))
-                |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open") |> Changeset.put_change(:distance, distance))
-                |> Repo.transaction
+                    Repo.insert!(invoice_changeset)
 
-                conn
-                |> put_flash(:info, "Parking confirmed #{closest_parking_place.spot}")
-                |> redirect(to: Routes.booking_path(conn, :index))
+                    Multi.new
+                    |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, parking_id))
+                    |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open"))
+                    |> Repo.transaction
+                    conn
+                    |> put_flash(:info, "Parking confirmed #{spot}")
+                    |> redirect(to: Routes.booking_path(conn, :index))
+
+                  {:error, changeset} ->
+                    IO.inspect changeset, label: "blerp"
+                    conn
+                    |> flashTheChangeset(changeset, "Duration")
+                    |> render("new.html", changeset: changeset)
+                end
+
               _ ->
             end
+        end
+      _ ->
+        search_params = search_params
+                        |> Map.delete(:spot)
+                        |> Map.delete(:id)
 
-          {:error, changeset} ->
+        booking_changeset = Booking.changeset(%Booking{}, search_params)
+                            |> Changeset.put_change(:user, user)
+                            |> Changeset.put_change(:status, "taken")
+        case Repo.insert(booking_changeset) do
+          {:ok, booking_insertion} ->
+            Multi.new
+            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, parking_id))
+            |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open"))
+            |> Repo.transaction
             conn
-            |> flashTheChangeset(changeset)
+            |> put_flash(:info, "Parking confirmed #{spot}")
+            |> redirect(to: Routes.booking_path(conn, :index))
+          {:error, changeset} ->
+            IO.inspect changeset, label: "blerp"
+            conn
+            |> flashTheChangeset(changeset, "Duration")
             |> render("new.html", changeset: changeset)
-          end
-
+        end
     end
-
   end
 
-  defp flashTheChangeset(conn, changeset) do
+  defp flashTheChangeset(conn, changeset, noun) do
     errors = Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Enum.reduce(opts, msg, fn {key, value}, acc ->
         String.replace(acc, "%{#{key}}", to_string(value))
@@ -161,7 +290,7 @@ defmodule ParkingProjectWeb.BookingController do
       |> Enum.join("\n")
 
     conn
-    |> put_flash(:error, error_msg)
+    |> put_flash(:error, noun <> " " <> error_msg)
   end
 
 end

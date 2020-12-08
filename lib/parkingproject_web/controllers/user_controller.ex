@@ -39,7 +39,7 @@ defmodule ParkingProjectWeb.UserController do
     changeset = User.changeset(user, user_params)
 
     Repo.update!(changeset)
-    redirect(conn, to: Routes.user_path(conn, :index))
+    redirect(conn, to: Routes.parking_path(conn, :index))
   end
 
   def show(conn, %{"id" => id}) do
