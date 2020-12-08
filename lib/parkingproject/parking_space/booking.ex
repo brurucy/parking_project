@@ -27,7 +27,7 @@ defmodule ParkingProject.ParkingSpace.Booking do
     enddate = get_field(changeset, :enddate)
     case startdate == enddate do
       true ->
-        add_error(changeset, :enddate, "must be different than startdate address")
+        add_error(changeset, :enddate, "must be different than startdate")
       _ ->
         changeset
     end

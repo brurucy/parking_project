@@ -7,10 +7,10 @@
 
 <div class="form-group">
     <%= label user, :hourly, class: "control-label" %>
-    <%= radio_button user, :is_hourly, true %>
+    <%= radio_button user, :is_hourly, true, id: "yes" %>
 
     <%= label user, :real_time, class: "control-label" %>
-    <%= radio_button user, :is_hourly, false %>
+    <%= radio_button user, :is_hourly, false, id: "no" %>
 </div>
 
 <div class="form-group">

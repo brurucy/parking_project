@@ -11,21 +11,21 @@
 <div class="form-group">
     <%= label search, :startdate, class: "control-label" %>
     <%= datetime_select search, :startdate, builder: fn b -> %>
-    <%= b.(:minute, prompt: "Minute") %>
-    <%= b.(:hour, prompt: "Hour") %>
-    <%= b.(:day, prompt: "Day") %>
-    <%= b.(:month, prompt: "Month") %>
-    <%= b.(:year, prompt: "Year") %>
+    <%= b.(:minute, prompt: "Minute", id: "start_minute") %>
+    <%= b.(:hour, prompt: "Hour", id: "start_hour") %>
+    <%= b.(:day, prompt: "Day", id: "start_day") %>
+    <%= b.(:month, prompt: "Month", id: "start_month") %>
+    <%= b.(:year, prompt: "Year", id: "start_year") %>
     <% end %>
 </div>
 <div class="form-group">
     <%= label search, :enddate, class: "control-label" %>
     <%= datetime_select search, :enddate, builder: fn b -> %>
-    <%= b.(:minute, prompt: "Minute") %>
-    <%= b.(:hour, prompt: "Hour") %>
-    <%= b.(:day, prompt: "Day") %>
-    <%= b.(:month, prompt: "Month") %>
-    <%= b.(:year, prompt: "Year") %>
+    <%= b.(:minute, prompt: "Minute", id: "end_minute") %>
+    <%= b.(:hour, prompt: "Hour", id: "end_hour") %>
+    <%= b.(:day, prompt: "Day", id: "end_day") %>
+    <%= b.(:month, prompt: "Month", id: "end_month") %>
+    <%= b.(:year, prompt: "Year", id: "end_year") %>
     <% end %>
 </div>
 <div class="form-group">
@@ -56,7 +56,7 @@
         <td><%= spot.distance %></td>
         <td><%= spot.fee %></td>
         <td><%= spot.duration %></td>
-        <td><%= button("Book #{spot.spot}", to: Routes.booking_path(@conn, :create, search: spot)) %></td>
+        <td><%= button("Book #{spot.spot}", id: "Book #{spot.spot}",to: Routes.booking_path(@conn, :create, search: spot)) %></td>
         <% end %>
     </tr>
     <% end %>

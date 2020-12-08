@@ -1,5 +1,15 @@
 # Parking Project
 
+# WARNING
+
+API LIMITS:
+
+* 2 Requests/second
+
+* 60 per minute
+
+* 5000 a day
+
 ## Installing Docker and Docker-compose
 
 **These instructions are for linux**

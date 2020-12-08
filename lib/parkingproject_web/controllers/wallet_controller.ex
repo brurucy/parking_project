@@ -81,10 +81,6 @@ defmodule ParkingProjectWeb.WalletController do
           wallet_struct = Enum.map(wallet_params, fn({key, value}) -> {String.to_atom(key), value} end)
                           |> Enum.into(%{})
 
-          IO.inspect wallet_struct, label: "fondly"
-
-          IO.inspect amount, label: "ammount"
-
           wallet_changeset = Wallet.changeset(%Wallet{}, %{})
                              |> Changeset.put_change(:amount, amount)
                              |> Changeset.put_change(:user, user)

@@ -24,6 +24,7 @@ defmodule ParkingProjectWeb.Router do
   scope "/", ParkingProjectWeb do
     pipe_through :browser
     resources "/sessions", SessionController, only: [:new, :create, :delete]
+    resources "/users", UserController, only: [:new, :create]
   end
 
   scope "/", ParkingProjectWeb do

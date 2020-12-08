@@ -17,8 +17,6 @@ defmodule ParkingProjectWeb.BookingController do
                     where: b.user_id == ^user.id
     bookings = Repo.all(booking_query)
 
-    IO.inspect(bookings, label: "testimine")
-
     query_pspot = from a in Allocation,
                   join: p in Parking,
                   on: a.parking_id == p.id,
@@ -29,8 +27,6 @@ defmodule ParkingProjectWeb.BookingController do
                   where: a.booking_id in ^(bookings |> Enum.map(fn x -> x.id end)),
                   select: [map(p, [:spot]), map(b, [:id, :destination, :duration, :distance, :fee, :startdate, :enddate]), map(pf, [:category])]
     parking_sl = Repo.all(query_pspot)
-
-    IO.inspect parking_sl, label: "check"
 
     render conn, "index.html", bookings: parking_sl
   end
@@ -53,7 +49,6 @@ defmodule ParkingProjectWeb.BookingController do
     booking = Repo.get!(Booking, id)
 
     {:ok, now} = DateTime.now("Etc/UTC")
-    IO.inspect now, label: "now"
 
     case Enum.member?(Map.values(booking_params["enddate"]), "") do
       true ->
@@ -93,7 +88,7 @@ defmodule ParkingProjectWeb.BookingController do
                                       on: [id: a.parking_id],
                                       join: pf in ParkingFee,
                                       on: [id: p.parking_fee_id],
-                                      where: a.booking_id == 1,
+                                      where: a.booking_id == ^id,
                                       select: map(pf, [:pph, :ppfm]))
 
                 case user.is_hourly do
@@ -102,8 +97,6 @@ defmodule ParkingProjectWeb.BookingController do
 
                     to_be_paid = parking_fee - booking.fee
 
-                    IO.inspect to_be_paid, label: "to be paid"
-
                     case to_be_paid > wallet.amount do
                       true ->
                         conn
@@ -125,14 +118,15 @@ defmodule ParkingProjectWeb.BookingController do
 
                               {:ok, booking_insertion} ->
 
-                                redirect(conn, to: Routes.booking_path(conn, :index))
-
                                 invoice_changeset = Invoice.changeset(%Invoice{}, %{})
                                                     |> Changeset.put_change(:amount, -to_be_paid)
                                                     |> Changeset.put_change(:wallet, wallet)
                                                     |> Changeset.put_change(:booking, booking_insertion)
 
                                 Repo.insert!(invoice_changeset)
+
+                                redirect(conn, to: Routes.booking_path(conn, :index))
+
                             end
                         end
                     end
@@ -140,8 +134,6 @@ defmodule ParkingProjectWeb.BookingController do
                     parking_fee = ceil(fee_scheme.ppfm * parking_time / 5)
                     to_be_paid = parking_fee - booking.fee
 
-                    IO.inspect to_be_paid, label: "to be paid"
-
                     case to_be_paid > wallet.amount do
                       true ->
                         conn
@@ -162,14 +154,14 @@ defmodule ParkingProjectWeb.BookingController do
 
                               {:ok, booking_insertion} ->
 
-                                redirect(conn, to: Routes.booking_path(conn, :index))
-
                                 invoice_changeset = Invoice.changeset(%Invoice{}, %{})
                                                     |> Changeset.put_change(:amount, -to_be_paid)
                                                     |> Changeset.put_change(:wallet, wallet)
                                                     |> Changeset.put_change(:booking, booking_insertion)
 
                                 Repo.insert!(invoice_changeset)
+
+                                redirect(conn, to: Routes.booking_path(conn, :index))
                             end
                         end
                     end

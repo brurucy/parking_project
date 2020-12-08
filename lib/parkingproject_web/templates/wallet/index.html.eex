@@ -11,7 +11,7 @@ Your current balance is: <%= @data.balance %> cents
 
 <%= number_input wallet, :amount, id: "amount", class: "form-control" %>
 
-<%= submit "Submit", id: "button_Submit", class: "btn btn-primary" %>
+<%= submit "Submit", id: "Submit", class: "btn btn-primary" %>
 
 <% end %>
 

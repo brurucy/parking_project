@@ -68,6 +68,8 @@ defmodule ParkingProjectWeb.ParkingController do
     {:ok, now} = DateTime.now("Etc/UTC") ## THIS IS NOT OUR TIMEZONE - PROBLEM?
     IO.inspect now, label: "now"
 
+    # Cannot book 2 years in advance =|
+
     case DateTime.diff(startdate, now) < 0 do
       true ->
         conn
@@ -141,7 +143,7 @@ defmodule ParkingProjectWeb.ParkingController do
           true ->
             case length(MapSet.to_list(MapSet.new(enddate_values))) == 1 do
               true ->
-                IO.inspect spot_distances, label: "spotty"
+                #IO.inspect spot_distances, label: "spotty"
 
                 spot_distances = spot_distances
                                  |> Enum.filter(fn k -> k.distance <= String.to_integer(params["radius"]) end)

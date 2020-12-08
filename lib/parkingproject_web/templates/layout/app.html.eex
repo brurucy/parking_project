@@ -44,9 +44,9 @@
             <%= if ParkingProject.Authentication.load_current_user(@conn) do %>
               <div style="display: inline-block; float: left;">
                 <div id="my_parking_button" style="display: inline-block; padding-right: 15px;"><%= link "My parkings", to: Routes.booking_path(@conn, :index), method: "get"%></div>
-                <div id="search_parkings" style="display: inline-block; padding-right: 15px;"><%= link "Search for a parking", to: Routes.parking_path(@conn, :index), method: "get" %></div>
+                <div id="search" style="display: inline-block; padding-right: 15px;"><%= link "Search for a parking", to: Routes.parking_path(@conn, :index), method: "get" %></div>
                 <div id="payment_scheme" style="display: inline-block; padding-right: 15px;"><%= link "Payment scheme", to: Routes.user_path(@conn, :edit, ParkingProject.Authentication.load_current_user(@conn)), method: "get" %></div>
-                  <div id="wallet" style="display: inline-block; padding-right: 15px;"><%= link "My Wallet", to: Routes.wallet_path(@conn, :index), method: "get" %></div>
+                <div id="wallet" style="display: inline-block; padding-right: 15px;"><%= link "My Wallet", to: Routes.wallet_path(@conn, :index), method: "get" %></div>
               </div>
             <% end %>
         </td>
