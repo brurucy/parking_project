@@ -95,10 +95,10 @@ defmodule ParkingProjectWeb.BookingController do
 
                     to_be_paid = parking_fee - booking.fee
 
-                    case to_be_paid > wallet.amount do
+                    case (to_be_paid > wallet.amount) || is_nil(wallet) do
                       true ->
                         conn
-                        |> put_flash(:error, "not enough cents, add #{to_be_paid - wallet.amount} more")
+                        |> put_flash(:error, "not enough cents, at worst #{to_be_paid} more")
                         |> redirect(to: Routes.booking_path(conn, :index))
                       false ->
 
@@ -132,7 +132,7 @@ defmodule ParkingProjectWeb.BookingController do
                     parking_fee = ceil(fee_scheme.ppfm * parking_time / 5)
                     to_be_paid = parking_fee - booking.fee
 
-                    case to_be_paid > wallet.amount do
+                    case (to_be_paid > wallet.amount) || is_nil(wallet) do
                       true ->
                         conn
                         |> put_flash(:error, "not enough cents, add #{to_be_paid - wallet.amount} more")
@@ -198,59 +198,119 @@ defmodule ParkingProjectWeb.BookingController do
                             where: w.user_id == ^user.id,
                             select: w
 
-        wallet = Repo.one!(query_wallet)
+        case Repo.one(query_wallet) do
 
-        fee_int = String.to_integer(fee)
-
-        case fee_int > wallet.amount do
-          true ->
+          nil ->
             conn
-            |> put_flash(:error, "not enough cents, add some")
-            |> redirect(to: Routes.booking_path(conn, :index))
-          false ->
-            wallet_changeset = Repo.get!(Wallet, wallet.id)
-                               |> Wallet.changeset(%{})
-                               |> Changeset.put_change(:amount, wallet.amount - fee_int)
+            |> put_flash(:error, "no wallet, add money first")
+            |> redirect(to: Routes.wallet_path(conn, :index))
+          wallet ->
+            fee_int = String.to_integer(fee)
 
-            case Repo.update(wallet_changeset) do
-              {:ok, wallet} ->
+            case fee_int > wallet.amount do
+              true ->
+                conn
+                |> put_flash(:error, "not enough cents, add some")
+                |> redirect(to: Routes.booking_path(conn, :index))
+              false ->
+                wallet_changeset = Repo.get!(Wallet, wallet.id)
+                                   |> Wallet.changeset(%{})
+                                   |> Changeset.put_change(:amount, wallet.amount - fee_int)
 
-                search_params = search_params
-                                |> Map.delete(:spot)
-                                |> Map.delete(:id)
+                case Repo.update(wallet_changeset) do
+                  {:ok, wallet} ->
 
-                booking_changeset = Booking.changeset(%Booking{}, search_params)
-                                    |> Changeset.put_change(:user, user)
-                                    |> Changeset.put_change(:status, "taken")
+                    search_params = search_params
+                                    |> Map.delete(:spot)
+                                    |> Map.delete(:id)
 
-                case Repo.insert(booking_changeset) do
-                  {:ok, booking_insertion} ->
+                    booking_changeset = Booking.changeset(%Booking{}, search_params)
+                                        |> Changeset.put_change(:user, user)
+                                        |> Changeset.put_change(:status, "taken")
 
-                    invoice_changeset = Invoice.changeset(%Invoice{}, %{})
-                                        |> Changeset.put_change(:amount, -fee_int)
-                                        |> Changeset.put_change(:wallet, wallet)
-                                        |> Changeset.put_change(:booking, booking_insertion)
+                    case Repo.insert(booking_changeset) do
+                      {:ok, booking_insertion} ->
 
-                    Repo.insert!(invoice_changeset)
+                        invoice_changeset = Invoice.changeset(%Invoice{}, %{})
+                                            |> Changeset.put_change(:amount, -fee_int)
+                                            |> Changeset.put_change(:wallet, wallet)
+                                            |> Changeset.put_change(:booking, booking_insertion)
 
-                    Multi.new
-                    |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, parking_id))
-                    |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open"))
-                    |> Repo.transaction
-                    conn
-                    |> put_flash(:info, "Parking confirmed #{spot}")
-                    |> redirect(to: Routes.booking_path(conn, :index))
+                        Repo.insert!(invoice_changeset)
 
-                  {:error, changeset} ->
-                    IO.inspect changeset, label: "blerp"
-                    conn
-                    |> flashTheChangeset(changeset, "Duration")
-                    |> render("new.html", changeset: changeset)
+                        Multi.new
+                        |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, parking_id))
+                        |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open"))
+                        |> Repo.transaction
+                        conn
+                        |> put_flash(:info, "Parking confirmed #{spot}")
+                        |> redirect(to: Routes.booking_path(conn, :index))
+
+                      {:error, changeset} ->
+                        IO.inspect changeset, label: "blerp"
+                        conn
+                        |> flashTheChangeset(changeset, "Duration")
+                        |> render("new.html", changeset: changeset)
+                    end
+
+                  _ ->
                 end
-
-              _ ->
             end
         end
+
+        #wallet = Repo.one!(query_wallet)
+#
+        #fee_int = String.to_integer(fee)
+#
+        #case fee_int > wallet.amount do
+        #  true ->
+        #    conn
+        #    |> put_flash(:error, "not enough cents, add some")
+        #    |> redirect(to: Routes.booking_path(conn, :index))
+        #  false ->
+        #    wallet_changeset = Repo.get!(Wallet, wallet.id)
+        #                       |> Wallet.changeset(%{})
+        #                       |> Changeset.put_change(:amount, wallet.amount - fee_int)
+#
+        #    case Repo.update(wallet_changeset) do
+        #      {:ok, wallet} ->
+#
+        #        search_params = search_params
+        #                        |> Map.delete(:spot)
+        #                        |> Map.delete(:id)
+#
+        #        booking_changeset = Booking.changeset(%Booking{}, search_params)
+        #                            |> Changeset.put_change(:user, user)
+        #                            |> Changeset.put_change(:status, "taken")
+#
+        #        case Repo.insert(booking_changeset) do
+        #          {:ok, booking_insertion} ->
+#
+        #            invoice_changeset = Invoice.changeset(%Invoice{}, %{})
+        #                                |> Changeset.put_change(:amount, -fee_int)
+        #                                |> Changeset.put_change(:wallet, wallet)
+        #                                |> Changeset.put_change(:booking, booking_insertion)
+#
+        #            Repo.insert!(invoice_changeset)
+#
+        #            Multi.new
+        #            |> Multi.insert(:allocation, Allocation.changeset(%Allocation{}, %{status: "active"}) |> Changeset.put_change(:booking_id, booking_insertion.id) |> Changeset.put_change(:parking_id, parking_id))
+        #            |> Multi.update(:booking, Booking.changeset(booking_insertion, %{}) |> Changeset.put_change(:status, "open"))
+        #            |> Repo.transaction
+        #            conn
+        #            |> put_flash(:info, "Parking confirmed #{spot}")
+        #            |> redirect(to: Routes.booking_path(conn, :index))
+#
+        #          {:error, changeset} ->
+        #            IO.inspect changeset, label: "blerp"
+        #            conn
+        #            |> flashTheChangeset(changeset, "Duration")
+        #            |> render("new.html", changeset: changeset)
+        #        end
+#
+        #      _ ->
+        #    end
+        #end
       _ ->
         search_params = search_params
                         |> Map.delete(:spot)
