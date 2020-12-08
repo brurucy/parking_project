@@ -4,6 +4,7 @@ defmodule ParkingProjectWeb.SessionControllerTest do
   alias ParkingProject.{Repo, UserManagement.User}
   alias Ecto.{Changeset}
 
+  # All of these are 1.1
   test "log-in", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get conn, redirected_to(conn)

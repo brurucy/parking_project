@@ -4,6 +4,7 @@ defmodule ParkingProjectWeb.UserControllerTest do
   alias ParkingProject.{Repo, UserManagement.User}
   alias Ecto.{Changeset}
 
+  # All of these are 1.1
   test "register", %{conn: conn} do
     conn = post conn, "/users", %{user: [email: "bruno198@ut.ee",
       password: "parool",
