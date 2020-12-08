@@ -9,7 +9,7 @@ defmodule ParkingProjectWeb.PageControllerTest do
     assert html_response(conn, 200) =~ "Welcome to Tartu Parking System!"
   end
 
-  
+  # 2.2 - the price corresponds to the parking spot zone (A or B)
   test "search - price corresponds to zone", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get(conn, redirected_to(conn))
@@ -47,6 +47,7 @@ defmodule ParkingProjectWeb.PageControllerTest do
     assert html_response(conn, 200) =~ ~r/<td>200<\/td>/
   end
 
+  # 2.3 - Verify if the fee calculated is correct for a given distance under hourly payment restrictions.
   test "search - real time correct price", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get(conn, redirected_to(conn))
@@ -85,6 +86,7 @@ defmodule ParkingProjectWeb.PageControllerTest do
     assert html_response(conn, 200) =~ ~r/<td>192<\/td>/
   end
 
+  # 3.1
   test "search - payment method is updated in the db", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get(conn, redirected_to(conn))
@@ -111,6 +113,7 @@ defmodule ParkingProjectWeb.PageControllerTest do
     assert true_hourly_user.is_hourly
   end
 
+  # 3.2
   test "search - invalid date - incomplete enddate", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get(conn, redirected_to(conn))
@@ -142,6 +145,7 @@ defmodule ParkingProjectWeb.PageControllerTest do
              ~r/if you wanna supply an end date at least fill all values/
   end
 
+  # 3.2
   test "search - valid date - no enddate", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get(conn, redirected_to(conn))
@@ -173,6 +177,7 @@ defmodule ParkingProjectWeb.PageControllerTest do
     assert html_response(conn, 200) =~ ~r/Vabriku 1/
   end
 
+  # 2.1 Verify that only available spaces are retrieved, and not available are discarded
   test "search - only available parking spots are shown", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get(conn, redirected_to(conn))
@@ -204,6 +209,7 @@ defmodule ParkingProjectWeb.PageControllerTest do
     assert !String.contains?(html_response(conn, 200), "Pepleri")
   end
 
+  # 2.1 Verify that only spots in a radius are returned and available places out of that radius discarded
   test "search - only spots in the range are shown", %{conn: conn} do
     conn = post conn, "/sessions", %{session: [email: "bruno98@ut.ee", password: "parool"]}
     conn = get(conn, redirected_to(conn))
