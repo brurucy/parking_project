@@ -37,7 +37,7 @@ defmodule ParkingProjectWeb.Router do
     resources "/users", UserController
     resources "/bookings", BookingController
     resources "/parkings", ParkingController
-    post "/parkings/search", ParkingController, :search
+    #post "/parkings/search", ParkingController, :search
     resources "/wallet", WalletController
   end
 
